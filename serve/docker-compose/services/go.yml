@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  #Destination Service
+  destination:
+    build:
+      context: .
+      dockerfile: ./go/Dockerfile
+      args:
+        GO_IMAGE_NAME: ${GO_IMAGE_NAME}
+        GO_IMAGE_VERSION: ${GO_IMAGE_VERSION}
+    image: chat-build:${GO_IMAGE_VERSION}
+    entrypoint:
+      - air
+      - "-c"
+      - /home/www/serve/docker-compose/services/go/.air.toml
+    restart: always
+    volumes:
+      - ../../../:/home/www
+    depends_on:
+      - rabbitmq
+
+#Docker Networks
+networks:
+  traefik_default:
+    external: true
