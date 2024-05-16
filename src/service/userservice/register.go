@@ -11,7 +11,7 @@ import (
 
 func (s Service) Register(req userparam.RegisterRequest) (userparam.RegisterResponse, error) {
 	activeCode := random.String(s.config.KeyLength)
-	publicKey, err := base64.RawStdEncoding.DecodeString(req.PublicKey)
+	publicKey, err := base64.StdEncoding.DecodeString(req.PublicKey)
 	unexpectedError := "unexpected error: %w"
 	if err != nil {
 		return userparam.RegisterResponse{}, fmt.Errorf(unexpectedError, err)
@@ -26,16 +26,17 @@ func (s Service) Register(req userparam.RegisterRequest) (userparam.RegisterResp
 	u := entity.User{
 		Id:         encryptdecrypt.GetMD5Hash(req.PublicKey),
 		PublicKey:  req.PublicKey,
-		ActiveCode: activeCode,
+		ActiveCode: encryptdecrypt.GetMD5Hash(activeCode),
 		Status:     0,
 	}
 	// create new user in storage
-	_, err = s.repo.Register(u)
+	_, err = s.repo.Register(req.Ctx, u)
 	if err != nil {
 		return userparam.RegisterResponse{}, fmt.Errorf(unexpectedError, err)
 	}
 	// return created user
 	return userparam.RegisterResponse{
-			EncryptedCode: base64.RawStdEncoding.EncodeToString(encryptedCode)},
-		nil
+		EncryptedCode: base64.RawStdEncoding.EncodeToString(encryptedCode),
+		Id:            u.Id,
+	}, nil
 }

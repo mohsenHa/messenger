@@ -10,12 +10,11 @@ import (
 	"github.com/mohsenHa/messenger/repository/mysql"
 )
 
-func (d *DB) Register(u entity.User) (entity.User, error) {
+func (d *DB) Register(ctx context.Context, u entity.User) (entity.User, error) {
 	const op = "mysql.Register"
 
-	_, err := d.conn.Conn().Exec(`insert into users(id,public_key,active_code,status) values(?,?,?,?)`,
+	_, err := d.conn.Conn().ExecContext(ctx, `insert into users(id,public_key,active_code,status) values(?,?,?,?)`,
 		u.Id, u.PublicKey, u.ActiveCode, u.Status)
-	fmt.Println(u.PublicKey)
 	if err != nil {
 		fmt.Println(err)
 		return entity.User{}, richerror.New(op).WithErr(err).
@@ -25,10 +24,10 @@ func (d *DB) Register(u entity.User) (entity.User, error) {
 	return u, nil
 }
 
-func (d *DB) GetUserByPublicKey(ctx context.Context, publicKey string) (entity.User, error) {
+func (d *DB) GetUserById(ctx context.Context, id string) (entity.User, error) {
 	const op = "mysql.GetUserByPublicKey"
 
-	row := d.conn.Conn().QueryRowContext(ctx, `select * from users where public_key = ?`, publicKey)
+	row := d.conn.Conn().QueryRowContext(ctx, `select * from users where id = ?`, id)
 
 	user, err := scanUser(row)
 	if err != nil {
@@ -44,10 +43,23 @@ func (d *DB) GetUserByPublicKey(ctx context.Context, publicKey string) (entity.U
 	return user, nil
 }
 
-func (d *DB) IsPublicKeyUnique(publicKey string) (bool, error) {
+func (d *DB) Activate(ctx context.Context, id string) error {
+	const op = "mysql.Activate"
+
+	_, err := d.conn.Conn().ExecContext(ctx, `update users set status=1 where id=?`,
+		id)
+	if err != nil {
+		return richerror.New(op).WithErr(err).
+			WithMessage(errmsg.ErrorMsgSomethingWentWrong).WithKind(richerror.KindUnexpected)
+	}
+
+	return nil
+}
+
+func (d *DB) IsIdUnique(id string) (bool, error) {
 	const op = "mysql.IsPhoneNumberUnique"
 
-	row := d.conn.Conn().QueryRow(`select * from users where public_key = ?`, publicKey)
+	row := d.conn.Conn().QueryRow(`select * from users where id = ?`, id)
 
 	_, err := scanUser(row)
 	if err != nil {
@@ -64,7 +76,7 @@ func (d *DB) IsPublicKeyUnique(publicKey string) (bool, error) {
 
 func scanUser(scanner mysql.Scanner) (entity.User, error) {
 	var user entity.User
-	err := scanner.Scan(&user.PublicKey, &user.ActiveCode, &user.Status)
+	err := scanner.Scan(&user.Id, &user.PublicKey, &user.ActiveCode, &user.Status)
 
 	return user, err
 }

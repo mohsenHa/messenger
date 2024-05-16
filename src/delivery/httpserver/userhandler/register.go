@@ -19,7 +19,7 @@ func (h Handler) userRegister(c echo.Context) error {
 			"errors":  fieldErrors,
 		})
 	}
-
+	req.Ctx = c.Request().Context()
 	resp, err := h.userSvc.Register(req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
