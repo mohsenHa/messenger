@@ -6,4 +6,5 @@ const (
 	ErrorMsgSomethingWentWrong   = "something went wrong"
 	ErrorMsgPublicKeyIsNotUnique = "public key is not unique"
 	ErrorMsgInvalidInput         = "invalid input"
+	ErrorMsgInvalidCode          = "invalid code"
 )
