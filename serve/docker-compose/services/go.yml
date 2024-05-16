@@ -1,7 +1,6 @@
-version: '3.8'
 services:
   #Destination Service
-  destination:
+  app:
     build:
       context: .
       dockerfile: ./go/Dockerfile
@@ -18,8 +17,10 @@ services:
       - ../../../:/home/www
     depends_on:
       - rabbitmq
-
-#Docker Networks
-networks:
-  traefik_default:
-    external: true
+      - db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.service=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${COMPOSE_PROJECT_NAME}.local`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=web"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=8088"

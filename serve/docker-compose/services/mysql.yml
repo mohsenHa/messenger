@@ -1,0 +1,30 @@
+services:
+  #Mysql Service
+  db:
+    image: mysql:5.7.22
+    restart: unless-stopped
+    tty: true
+    environment:
+      MYSQL_DATABASE: app_db
+      MYSQL_ROOT_PASSWORD: password
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - mysqldb:/var/lib/mysql
+
+  #PHPMyadmin Service
+  db_manager:
+      image: phpmyadmin/phpmyadmin
+      environment:
+        PMA_HOST: db
+        PMA_PORT: 3306
+        UPLOAD_LIMIT: 5G
+      restart: always
+      ports:
+        - "8081:80"
+
+#Volumes
+volumes:
+  mysqldb:
+    name: ${SERVICE_NAME}_mysqldb
+    driver: local

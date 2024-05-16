@@ -2,8 +2,8 @@ root = "."
 tmp_dir = "temp"
 
 [build]
-  bin = "./src/cmd/httpserver/temp/main"
-  cmd = "go build -o ./src/cmd/httpserver/main ./src/cmd/destination/temp"
+  bin = "./cmd/httpserver/temp/main"
+  cmd = "go build -o ./cmd/httpserver/temp/main ./cmd/httpserver"
   delay = 1000
   exclude_dir = []
   exclude_file = []
