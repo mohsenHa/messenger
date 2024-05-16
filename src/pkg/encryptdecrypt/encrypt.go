@@ -1,18 +1,18 @@
 package encryptdecrypt
 
 import (
+	"crypto/md5"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
-	"encoding/base64"
+	"encoding/hex"
 	"encoding/pem"
 	"github.com/mohsenHa/messenger/pkg/errmsg"
 	"github.com/mohsenHa/messenger/pkg/richerror"
 )
 
-func Encrypt(pk string, message []byte) ([]byte, error) {
+func Encrypt(publicKeyPEM, message []byte) ([]byte, error) {
 	const op = "encryptdecrypt.Encrypt"
-	publicKeyPEM := []byte(base64.StdEncoding.EncodeToString([]byte(pk)))
 	publicKeyBlock, _ := pem.Decode(publicKeyPEM)
 	publicKey, err := x509.ParsePKIXPublicKey(publicKeyBlock.Bytes)
 	if err != nil {
@@ -20,4 +20,9 @@ func Encrypt(pk string, message []byte) ([]byte, error) {
 			WithMessage(errmsg.ErrorMsgSomethingWentWrong).WithKind(richerror.KindUnexpected)
 	}
 	return rsa.EncryptPKCS1v15(rand.Reader, publicKey.(*rsa.PublicKey), message)
+}
+
+func GetMD5Hash(text string) string {
+	hash := md5.Sum([]byte(text))
+	return hex.EncodeToString(hash[:])
 }

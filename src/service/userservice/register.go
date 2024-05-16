@@ -24,6 +24,7 @@ func (s Service) Register(req userparam.RegisterRequest) (userparam.RegisterResp
 	}
 
 	u := entity.User{
+		Id:         encryptdecrypt.GetMD5Hash(req.PublicKey),
 		PublicKey:  req.PublicKey,
 		ActiveCode: activeCode,
 		Status:     0,

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/mohsenHa/messenger/entity"
-	"github.com/mohsenHa/messenger/pkg/encryptdecrypt"
 	"github.com/mohsenHa/messenger/pkg/errmsg"
 	"github.com/mohsenHa/messenger/pkg/richerror"
 	"github.com/mohsenHa/messenger/repository/mysql"
@@ -14,8 +13,8 @@ import (
 func (d *DB) Register(u entity.User) (entity.User, error) {
 	const op = "mysql.Register"
 
-	_, err := d.conn.Conn().Exec(`insert into users(public_key_md5,public_key,active_code,status) values(?,?,?,?)`,
-		encryptdecrypt.GetMD5Hash(u.PublicKey), u.PublicKey, u.ActiveCode, u.Status)
+	_, err := d.conn.Conn().Exec(`insert into users(id,public_key,active_code,status) values(?,?,?,?)`,
+		u.Id, u.PublicKey, u.ActiveCode, u.Status)
 	fmt.Println(u.PublicKey)
 	if err != nil {
 		fmt.Println(err)
