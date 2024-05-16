@@ -11,7 +11,6 @@ import (
 func (v Validator) ValidateRegisterRequest(req userparam.RegisterRequest) (map[string]string, error) {
 	const op = "uservalidator.ValidateRegisterRequest"
 
-	fmt.Println(req)
 	if err := validation.ValidateStruct(&req,
 
 		validation.Field(&req.PublicKey,
