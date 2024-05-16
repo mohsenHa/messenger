@@ -1,19 +1,26 @@
 package userservice
 
 import (
+	"encoding/base64"
 	"fmt"
 	"github.com/labstack/gommon/random"
 	"github.com/mohsenHa/messenger/entity"
-	"github.com/mohsenHa/messenger/param/user"
+	"github.com/mohsenHa/messenger/param/userparam"
 	"github.com/mohsenHa/messenger/pkg/encryptdecrypt"
 )
 
-func (s Service) Register(req user.RegisterRequest) (user.RegisterResponse, error) {
+func (s Service) Register(req userparam.RegisterRequest) (userparam.RegisterResponse, error) {
 	activeCode := random.String(s.config.KeyLength)
-
-	encryptedCode, err := encryptdecrypt.Encrypt(req.PublicKey, []byte(activeCode))
+	publicKey, err := base64.RawStdEncoding.DecodeString(req.PublicKey)
+	unexpectedError := "unexpected error: %w"
 	if err != nil {
-		return user.RegisterResponse{}, fmt.Errorf("unexpected error: %w", err)
+		return userparam.RegisterResponse{}, fmt.Errorf(unexpectedError, err)
+	}
+	encryptedCode, err := encryptdecrypt.Encrypt(publicKey, []byte(activeCode))
+	if err != nil {
+		fmt.Println(err)
+
+		return userparam.RegisterResponse{}, fmt.Errorf(unexpectedError, err)
 	}
 
 	u := entity.User{
@@ -21,12 +28,13 @@ func (s Service) Register(req user.RegisterRequest) (user.RegisterResponse, erro
 		ActiveCode: activeCode,
 		Status:     0,
 	}
-
 	// create new user in storage
 	_, err = s.repo.Register(u)
 	if err != nil {
-		return user.RegisterResponse{}, fmt.Errorf("unexpected error: %w", err)
+		return userparam.RegisterResponse{}, fmt.Errorf(unexpectedError, err)
 	}
 	// return created user
-	return user.RegisterResponse{EncryptedCode: string(encryptedCode)}, nil
+	return userparam.RegisterResponse{
+			EncryptedCode: base64.RawStdEncoding.EncodeToString(encryptedCode)},
+		nil
 }

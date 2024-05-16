@@ -3,6 +3,7 @@ package mysql
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"time"
 )
 
@@ -39,4 +40,9 @@ func New(config Config) *MySQLDB {
 	db.SetMaxIdleConns(10)
 
 	return &MySQLDB{config: config, db: db}
+}
+
+func NewDb(cfg Config) *sql.DB {
+	mdb := New(cfg)
+	return mdb.db
 }

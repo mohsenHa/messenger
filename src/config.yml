@@ -1,0 +1,25 @@
+---
+type: yml
+auth:
+  sign_key: jwt_secret
+
+http_server:
+  port: 8088
+
+rabbitmq:
+  user: guest
+  password: guest
+  host: rabbitmq
+  port: 5672
+  reconnect_second: 10
+  vhost:
+
+mysql:
+  port: 3306
+  host: db
+  db_name: app_db
+  username: root
+  password: password
+
+user_service:
+  key_length: 10

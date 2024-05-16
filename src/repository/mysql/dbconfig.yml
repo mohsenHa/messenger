@@ -1,0 +1,12 @@
+production:
+  dialect: mysql
+  datasource: root:password@(db:3306)/app_db?parseTime=true
+  dir: repository/mysql/migrations
+  table: gorp_migrations
+
+development:
+  dialect: mysql
+  datasource: root:password@(db:3306)/app_db?parseTime=true
+  dir: repository/mysql/migrations
+  table: gorp_migrations
+
