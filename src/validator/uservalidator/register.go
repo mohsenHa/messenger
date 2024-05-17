@@ -4,7 +4,6 @@ import (
 	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/mohsenHa/messenger/param/userparam"
-	"github.com/mohsenHa/messenger/pkg/encryptdecrypt"
 	"github.com/mohsenHa/messenger/pkg/errmsg"
 	"github.com/mohsenHa/messenger/pkg/richerror"
 )
@@ -39,15 +38,16 @@ func (v Validator) ValidateRegisterRequest(req userparam.RegisterRequest) (map[s
 
 func (v Validator) checkIdUniqueness(value interface{}) error {
 	publicKey := value.(string)
-	id := encryptdecrypt.GetMD5Hash(publicKey)
+	id := v.keyGen.CreateUserId(publicKey)
 
 	if isUnique, err := v.repo.IsIdUnique(id); err != nil || !isUnique {
+		fmt.Println(isUnique, err)
 		if err != nil {
 			return err
 		}
 
 		if !isUnique {
-			return fmt.Errorf(errmsg.ErrorMsgPublicKeyIsNotUnique)
+			return fmt.Errorf(errmsg.ErrorMsgPublicKeyIsAlreadyRegisteredTryToLogin)
 		}
 	}
 

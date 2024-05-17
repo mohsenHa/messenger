@@ -13,8 +13,8 @@ import (
 func (d *DB) Register(ctx context.Context, u entity.User) (entity.User, error) {
 	const op = "mysql.Register"
 
-	_, err := d.conn.Conn().ExecContext(ctx, `insert into users(id,public_key,active_code,status) values(?,?,?,?)`,
-		u.Id, u.PublicKey, u.ActiveCode, u.Status)
+	_, err := d.conn.Conn().ExecContext(ctx, `insert into users(id,public_key,code,status) values(?,?,?,?)`,
+		u.Id, u.PublicKey, u.Code, u.Status)
 	if err != nil {
 		fmt.Println(err)
 		return entity.User{}, richerror.New(op).WithErr(err).
@@ -41,6 +41,19 @@ func (d *DB) GetUserById(ctx context.Context, id string) (entity.User, error) {
 	}
 
 	return user, nil
+}
+
+func (d *DB) UpdateCode(ctx context.Context, id, code string) error {
+	const op = "mysql.Activate"
+
+	_, err := d.conn.Conn().ExecContext(ctx, `update users set code=? where id=?`,
+		code, id)
+	if err != nil {
+		return richerror.New(op).WithErr(err).
+			WithMessage(errmsg.ErrorMsgSomethingWentWrong).WithKind(richerror.KindUnexpected)
+	}
+
+	return nil
 }
 
 func (d *DB) Activate(ctx context.Context, id string) error {
@@ -76,7 +89,7 @@ func (d *DB) IsIdUnique(id string) (bool, error) {
 
 func scanUser(scanner mysql.Scanner) (entity.User, error) {
 	var user entity.User
-	err := scanner.Scan(&user.Id, &user.PublicKey, &user.ActiveCode, &user.Status)
+	err := scanner.Scan(&user.Id, &user.PublicKey, &user.Code, &user.Status)
 
 	return user, err
 }

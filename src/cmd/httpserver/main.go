@@ -17,10 +17,6 @@ import (
 	"os/signal"
 )
 
-const (
-	JwtSignKey = ""
-)
-
 func main() {
 	cfg := config.Load("config.yml")
 	fmt.Printf("cfg: %+v\n", cfg)

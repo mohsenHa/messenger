@@ -7,21 +7,30 @@ import (
 
 type Repository interface {
 	Register(ctx context.Context, u entity.User) (entity.User, error)
+	UpdateCode(ctx context.Context, id, code string) error
 	Activate(ctx context.Context, id string) error
 	GetUserById(ctx context.Context, id string) (entity.User, error)
 }
-type Config struct {
-	KeyLength uint8 `koanf:"key_length"`
+type AuthGenerator interface {
+	CreateAccessToken(user entity.User) (string, error)
+}
+
+type KeyGenerator interface {
+	CreateCode() (string, error)
+	EncryptCode(code, publicKey string) (string, error)
+	CreateUserId(publicKey string) string
 }
 
 type Service struct {
 	repo   Repository
-	config Config
+	auth   AuthGenerator
+	keyGen KeyGenerator
 }
 
-func New(repo Repository, config Config) Service {
+func New(repo Repository, auth AuthGenerator, keyGen KeyGenerator) Service {
 	return Service{
 		repo:   repo,
-		config: config,
+		auth:   auth,
+		keyGen: keyGen,
 	}
 }

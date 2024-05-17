@@ -4,7 +4,7 @@
 CREATE TABLE `users` (
                        `id` VARCHAR(191) PRIMARY KEY NOT NULL,
                        `public_key` TEXT NOT NULL,
-                       `active_code` VARCHAR(50),
+                       `code` VARCHAR(50),
                        `status` INT NOT NULL DEFAULT 0
 );
 

@@ -16,7 +16,7 @@ func (s Service) Verify(req userparam.VerifyRequest) (userparam.VerifyResponse, 
 		return userparam.VerifyResponse{}, fmt.Errorf(unexpectedError, err)
 	}
 
-	if u.ActiveCode != encryptdecrypt.GetMD5Hash(code) {
+	if u.Code != encryptdecrypt.GetMD5Hash(code) {
 		return userparam.VerifyResponse{}, fmt.Errorf(errmsg.ErrorMsgInvalidCode)
 	}
 
@@ -24,5 +24,13 @@ func (s Service) Verify(req userparam.VerifyRequest) (userparam.VerifyResponse, 
 	if err != nil {
 		return userparam.VerifyResponse{}, fmt.Errorf(unexpectedError, err)
 	}
-	return userparam.VerifyResponse{Id: u.Id}, nil
+	token, err := s.auth.CreateAccessToken(u)
+	if err != nil {
+		return userparam.VerifyResponse{}, fmt.Errorf(unexpectedError, err)
+	}
+
+	return userparam.VerifyResponse{
+		Id:    u.Id,
+		Token: token,
+	}, nil
 }

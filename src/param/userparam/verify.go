@@ -9,5 +9,6 @@ type VerifyRequest struct {
 }
 
 type VerifyResponse struct {
-	Id string `json:"id"`
+	Id    string `json:"id"`
+	Token string `json:"token"`
 }
