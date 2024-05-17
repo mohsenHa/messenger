@@ -8,6 +8,8 @@ import (
 	"github.com/mohsenHa/messenger/repository/migrator/mysqlmigrator"
 	"github.com/mohsenHa/messenger/repository/mysql"
 	"github.com/mohsenHa/messenger/repository/mysql/mysqluser"
+	"github.com/mohsenHa/messenger/service/authservice"
+	"github.com/mohsenHa/messenger/service/keygenerator"
 	"github.com/mohsenHa/messenger/service/messageservice"
 	"github.com/mohsenHa/messenger/service/userservice"
 	"github.com/mohsenHa/messenger/validator/uservalidator"
@@ -24,7 +26,6 @@ func main() {
 	fmt.Printf("cfg: %+v\n", cfg)
 
 	mgr := mysqlmigrator.New(cfg.Mysql)
-	mgr.Down()
 	mgr.Up()
 
 	rSvcs, rVal := setupServices(cfg)
@@ -52,13 +53,14 @@ func main() {
 
 func setupServices(cfg config.Config) (requiredServices httpserver.RequiredServices, requiredValidators httpserver.RequiredValidators) {
 	mysqlRepo := mysql.New(cfg.Mysql)
-
 	userRepo := mysqluser.New(mysqlRepo)
+	keyGen := keygenerator.New(cfg.KeyGenerator)
+	authSvc := authservice.New(cfg.Auth)
 
 	requiredServices.MessageService = messageservice.New(cfg.Rabbitmq)
-	requiredServices.UserService = userservice.New(userRepo, cfg.UserService)
+	requiredServices.UserService = userservice.New(userRepo, authSvc, keyGen)
 
-	requiredValidators.UserValidator = uservalidator.New(userRepo)
+	requiredValidators.UserValidator = uservalidator.New(userRepo, keyGen)
 
 	return
 }
