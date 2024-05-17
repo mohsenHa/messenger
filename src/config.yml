@@ -2,6 +2,8 @@
 type: yml
 auth:
   sign_key: jwt_secret
+  private_key_path: ./key/key
+  public_key_path: ./key/key.pub
 
 http_server:
   port: 8088
@@ -21,5 +23,9 @@ mysql:
   username: root
   password: password
 
-user_service:
+key_generator:
   key_length: 10
+  id_prefix: simple_prefix
+  id_postfix: simple_postfix
+
+
