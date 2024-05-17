@@ -19,11 +19,17 @@ func (s Service) Verify(req userparam.VerifyRequest) (userparam.VerifyResponse, 
 	if u.Code != encryptdecrypt.GetMD5Hash(code) {
 		return userparam.VerifyResponse{}, fmt.Errorf(errmsg.ErrorMsgInvalidCode)
 	}
-
-	err = s.repo.Activate(req.Ctx, req.Id)
+	if u.Status != 1 {
+		err = s.repo.Activate(req.Ctx, req.Id)
+		if err != nil {
+			return userparam.VerifyResponse{}, fmt.Errorf(unexpectedError, err)
+		}
+	}
+	_, err = s.updateCode(req.Ctx, u)
 	if err != nil {
 		return userparam.VerifyResponse{}, fmt.Errorf(unexpectedError, err)
 	}
+
 	token, err := s.auth.CreateAccessToken(u)
 	if err != nil {
 		return userparam.VerifyResponse{}, fmt.Errorf(unexpectedError, err)
