@@ -140,7 +140,6 @@ func (ca *ChannelAdapter) CloseIdleChannel(name string, closeSignalChannel chan<
 				delete(ca.channels, name)
 				return
 			case <-heartBeatSignalChannel:
-				fmt.Println("Heartbeat signal received")
 				break
 			case <-ca.done:
 				return

@@ -14,7 +14,8 @@ type rabbitmqChannel struct {
 	done                   <-chan bool
 	rabbitmq               *Rabbitmq
 	inputChannel           chan []byte
-	outputChannel          chan Message
+	outputChannel          []chan Message
+	outputChannelMutex     *sync.RWMutex
 	exchange               string
 	queue                  string
 	maxRetryPolicy         int
@@ -107,7 +108,8 @@ func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabb
 		closeSignalChannel:     rabbitmqChannelParams.closeSignalChannel,
 		heartBeatSignalChannel: rabbitmqChannelParams.heartBeatSignalChannel,
 		inputChannel:           make(chan []byte, rabbitmqChannelParams.bufferSize),
-		outputChannel:          make(chan Message, rabbitmqChannelParams.bufferSize),
+		outputChannel:          make([]chan Message, rabbitmqChannelParams.bufferSize),
+		outputChannelMutex:     &sync.RWMutex{},
 	}
 	rc.start()
 
@@ -132,7 +134,17 @@ func (rc *rabbitmqChannel) GetOutputChannel() <-chan Message {
 		rc.startOutput()
 	}()
 
-	return rc.outputChannel
+	return rc.NewOutputChannel()
+}
+
+func (rc *rabbitmqChannel) NewOutputChannel() <-chan Message {
+	channel := make(chan Message)
+
+	rc.outputChannelMutex.Lock()
+	rc.outputChannel = append(rc.outputChannel, channel)
+	rc.outputChannelMutex.Unlock()
+
+	return channel
 }
 
 func (rc *rabbitmqChannel) GetHeartbeatChannel() chan<- bool {
@@ -200,12 +212,43 @@ func (rc *rabbitmqChannel) startOutput() {
 				go func() {
 					defer rc.wg.Done()
 
-					rc.outputChannel <- Message{
+					ackChan := make(chan bool)
+					ackCount := 0
+					message := Message{
 						Body: msg.Body,
 						Ack: func() error {
-							return msg.Ack(false)
+							ackChan <- true
+							return nil
 						},
 					}
+
+					for _, c := range rc.outputChannel {
+						ackCount++
+						c <- message
+					}
+
+					rc.wg.Add(1)
+					go func() {
+						defer rc.wg.Done()
+						askTimeout := time.After(time.Second * 5)
+						for {
+							select {
+							case <-ackChan:
+								ackCount--
+							case <-askTimeout:
+								fmt.Println("Timeout on all ACKs")
+								return
+							default:
+								time.Sleep(time.Second)
+							}
+							if ackCount == 0 {
+								fmt.Println("All ack is done")
+								msg.Ack(false)
+								return
+							}
+						}
+					}()
+
 					rc.sendHeartBeatSignal()
 				}()
 			}
