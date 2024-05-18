@@ -1,6 +1,7 @@
 package messagehandler
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/mohsenHa/messenger/config"
 	"github.com/mohsenHa/messenger/param/messageparam"
@@ -24,6 +25,14 @@ func (h Handler) sendMessage(c echo.Context) error {
 	req.Ctx = c.Request().Context()
 
 	req.FromId = c.Get(config.AuthMiddlewareContextKey).(*authservice.Claims).Id
+
+	if req.FromId == req.ToId {
+		msg, code := httpmsg.Error(fmt.Errorf("sender and receiver cannot be the same %s and %s",
+			req.FromId, req.ToId))
+		return c.JSON(code, echo.Map{
+			"message": msg,
+		})
+	}
 
 	resp, err := h.messageSvc.Send(req)
 	if err != nil {
