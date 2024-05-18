@@ -2,7 +2,6 @@ package rabbitmq
 
 import (
 	"fmt"
-	"github.com/mohsenHa/messenger/pkg/errmsg"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"sync"
 	"time"
@@ -150,20 +149,20 @@ func (ca *ChannelAdapter) CloseIdleChannel(name string, closeSignalChannel chan<
 	}()
 }
 
-func (ca *ChannelAdapter) GetInputChannel(name string) (chan<- []byte, error) {
+func (ca *ChannelAdapter) GetInputChannel(name string) chan<- []byte {
 	if c, ok := ca.channels[name]; ok {
-		return c.GetInputChannel(), nil
+		return c.GetInputChannel()
 	}
-
-	return nil, fmt.Errorf(errmsg.ErrMsgChannelNotFound, name)
+	ca.NewChannel(name)
+	return ca.GetInputChannel(name)
 }
 
-func (ca *ChannelAdapter) GetOutputChannel(name string) (<-chan Message, error) {
+func (ca *ChannelAdapter) GetOutputChannel(name string) <-chan Message {
 	if c, ok := ca.channels[name]; ok {
-		return c.GetOutputChannel(), nil
+		return c.GetOutputChannel()
 	}
-
-	return nil, fmt.Errorf(errmsg.ErrMsgChannelNotFound, name)
+	ca.NewChannel(name)
+	return ca.GetOutputChannel(name)
 }
 
 func WaitForConnection(rabbitmq *Rabbitmq) {

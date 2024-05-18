@@ -32,13 +32,7 @@ func (s Service) Send(req messageparam.SendRequest) (messageparam.SendResponse, 
 		return messageparam.SendResponse{}, fmt.Errorf("unexpected error: %w", err)
 	}
 
-	chanel, err := s.rabbitmq.GetInputChannel(req.ToId)
-	if err != nil {
-		s.rabbitmq.NewChannel(req.ToId)
-	}
-
-	chanel, _ = s.rabbitmq.GetInputChannel(req.ToId)
-
+	chanel := s.rabbitmq.GetInputChannel(req.ToId)
 	chanel <- messageByte
 
 	return messageparam.SendResponse{SendMessage: sendMessage}, nil
