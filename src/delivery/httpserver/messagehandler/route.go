@@ -8,5 +8,6 @@ import (
 func (h Handler) SetRoutes(messageGroup *echo.Group) {
 
 	messageGroup.POST("/send", h.sendMessage, middleware.Auth(h.authService))
+	messageGroup.GET("/receive", h.receiveMessage, middleware.Auth(h.authService))
 
 }
