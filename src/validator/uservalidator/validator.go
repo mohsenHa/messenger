@@ -3,7 +3,8 @@ package uservalidator
 import "github.com/mohsenHa/messenger/service/keygenerator"
 
 type Repository interface {
-	IsIdUnique(publicKey string) (bool, error)
+	IsIdUnique(id string) (bool, error)
+	IsIdExist(id string) (bool, error)
 }
 
 type Validator struct {

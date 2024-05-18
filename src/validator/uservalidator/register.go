@@ -41,7 +41,6 @@ func (v Validator) checkIdUniqueness(value interface{}) error {
 	id := v.keyGen.CreateUserId(publicKey)
 
 	if isUnique, err := v.repo.IsIdUnique(id); err != nil || !isUnique {
-		fmt.Println(isUnique, err)
 		if err != nil {
 			return err
 		}
