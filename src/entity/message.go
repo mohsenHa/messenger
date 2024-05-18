@@ -1,7 +1,11 @@
 package entity
 
+import "time"
+
 type Message struct {
-	From User
-	To   User
-	Body string
+	Id       string
+	From     User
+	To       User
+	Body     string
+	SendTime time.Time
 }

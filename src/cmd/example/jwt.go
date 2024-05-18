@@ -49,7 +49,7 @@ func main() {
 	if claims, ok := token.Claims.(*authservice.Claims); ok && token.Valid {
 		fmt.Println(claims)
 	} else {
-		panic(err)
+		panic("Token is invalid")
 	}
 
 }

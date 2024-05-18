@@ -8,8 +8,10 @@ import (
 	"github.com/mohsenHa/messenger/delivery/httpserver/messagehandler"
 	"github.com/mohsenHa/messenger/delivery/httpserver/userhandler"
 	"github.com/mohsenHa/messenger/logger"
+	"github.com/mohsenHa/messenger/service/authservice"
 	"github.com/mohsenHa/messenger/service/messageservice"
 	"github.com/mohsenHa/messenger/service/userservice"
+	"github.com/mohsenHa/messenger/validator/messagevalidator"
 	"github.com/mohsenHa/messenger/validator/uservalidator"
 	"go.uber.org/zap"
 )
@@ -24,17 +26,19 @@ type Server struct {
 type RequiredServices struct {
 	UserService    userservice.Service
 	MessageService messageservice.Service
+	AuthService    authservice.Service
 }
 
 type RequiredValidators struct {
-	UserValidator uservalidator.Validator
+	UserValidator    uservalidator.Validator
+	MessageValidator messagevalidator.Validator
 }
 
 func New(config config.Config, services RequiredServices, validators RequiredValidators) Server {
 	return Server{
 		Router:         echo.New(),
 		config:         config,
-		messageHandler: messagehandler.New(services.MessageService),
+		messageHandler: messagehandler.New(services.MessageService, services.AuthService, validators.MessageValidator),
 		userHandler:    userhandler.New(services.UserService, validators.UserValidator),
 	}
 }

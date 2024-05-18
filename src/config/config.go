@@ -5,11 +5,12 @@ import (
 	"github.com/mohsenHa/messenger/repository/mysql"
 	"github.com/mohsenHa/messenger/service/authservice"
 	"github.com/mohsenHa/messenger/service/keygenerator"
-	"time"
 )
 
 type Application struct {
-	GracefulShutdownTimeout time.Duration `koanf:"graceful_shutdown_timeout"`
+	GracefulShutdownTimeout int  `koanf:"graceful_shutdown_timeout"`
+	EnableProfiling         bool `koanf:"enable_profiling"`
+	ProfilingPort           int  `koanf:"profiling_port"`
 }
 
 type HTTPServer struct {

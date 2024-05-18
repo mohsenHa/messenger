@@ -1,9 +1,16 @@
 ---
 type: yml
+
+application:
+  graceful_shutdown_timeout: 30
+  profiling_port: 1234
+  enable_profiling: true
+
 auth:
   sign_key: jwt_secret
   private_key_path: ./key/key
   public_key_path: ./key/key.pub
+  access_ttl_second: 86400
 
 http_server:
   port: 8088
@@ -14,6 +21,7 @@ rabbitmq:
   host: rabbitmq
   port: 5672
   reconnect_second: 10
+  channel_cleaner_timer_in_seconds: 30
   vhost:
 
 mysql:
