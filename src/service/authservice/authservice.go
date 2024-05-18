@@ -1,20 +1,21 @@
 package authservice
 
 import (
+	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/mohsenHa/messenger/entity"
+	"github.com/mohsenHa/messenger/pkg/errmsg"
 	"os"
 	"strings"
 	"time"
 )
 
 type Config struct {
-	PublicKeyPath         string        `koanf:"public_key_path"`
-	PrivateKeyPath        string        `koanf:"private_key_path"`
-	AccessExpirationTime  time.Duration `koanf:"access_expiration_time"`
-	RefreshExpirationTime time.Duration `koanf:"refresh_expiration_time"`
-	AccessSubject         string        `koanf:"access_subject"`
-	RefreshSubject        string        `koanf:"refresh_subject"`
+	PublicKeyPath   string `koanf:"public_key_path"`
+	PrivateKeyPath  string `koanf:"private_key_path"`
+	AccessTTLSecond int    `koanf:"access_ttl_second"`
+	AccessSubject   string `koanf:"access_subject"`
+	RefreshSubject  string `koanf:"refresh_subject"`
 }
 
 type Service struct {
@@ -28,16 +29,13 @@ func New(cfg Config) Service {
 }
 
 func (s Service) CreateAccessToken(user entity.User) (string, error) {
-	return s.createToken(user.Id, s.config.AccessExpirationTime)
+	return s.createToken(user.Id, time.Second*time.Duration(s.config.AccessTTLSecond))
 }
 
 func (s Service) ParseToken(bearerToken string) (*Claims, error) {
 	tokenStr := strings.Replace(bearerToken, "Bearer ", "", 1)
-
 	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		keyData, _ := os.ReadFile(s.config.PublicKeyPath)
-		key, _ := jwt.ParseRSAPublicKeyFromPEM(keyData)
-		return key, nil
+		return s.GetPublicKey()
 	})
 	if err != nil {
 		return nil, err
@@ -46,8 +44,38 @@ func (s Service) ParseToken(bearerToken string) (*Claims, error) {
 	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
 		return claims, nil
 	} else {
+		return nil, fmt.Errorf(errmsg.ErrorMsgUnauthorized)
+	}
+}
+
+func (s Service) GetPublicKey() (interface{}, error) {
+
+	keyData, err := os.ReadFile(s.config.PublicKeyPath)
+	if err != nil {
 		return nil, err
 	}
+	key, err := jwt.ParseRSAPublicKeyFromPEM(keyData)
+	if err != nil {
+		return nil, err
+	}
+	return key, nil
+}
+
+func (s Service) GetPrivateKey() (interface{}, error) {
+
+	keyDataPrivate, err := os.ReadFile(s.config.PrivateKeyPath)
+	if err != nil {
+		return nil, err
+	}
+	key, err := jwt.ParseRSAPrivateKeyFromPEM(keyDataPrivate)
+	if err != nil {
+		return nil, err
+	}
+
+	return key, nil
+}
+func (s Service) GetSigningMethod() *jwt.SigningMethodRSA {
+	return jwt.SigningMethodRS512
 }
 
 func (s Service) createToken(id string, expireDuration time.Duration) (string, error) {
@@ -57,9 +85,11 @@ func (s Service) createToken(id string, expireDuration time.Duration) (string, e
 		},
 		Id: id,
 	}
-	accessToken := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)
-	keyDataPrivate, _ := os.ReadFile(s.config.PrivateKeyPath)
-	keyprivate, _ := jwt.ParseRSAPrivateKeyFromPEM(keyDataPrivate)
+	accessToken := jwt.NewWithClaims(s.GetSigningMethod(), claims)
+	keyprivate, err := s.GetPrivateKey()
+	if err != nil {
+		return "", err
+	}
 	tokenString, err := accessToken.SignedString(keyprivate)
 	if err != nil {
 		return "", err
