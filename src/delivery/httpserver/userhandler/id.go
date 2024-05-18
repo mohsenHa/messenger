@@ -7,12 +7,12 @@ import (
 	"net/http"
 )
 
-func (h Handler) userVerify(c echo.Context) error {
-	var req userparam.VerifyRequest
+func (h Handler) userId(c echo.Context) error {
+	var req userparam.IdRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
-	if fieldErrors, err := h.userValidator.ValidateVerifyRequest(req); err != nil {
+	if fieldErrors, err := h.userValidator.ValidateIdRequest(req); err != nil {
 		msg, code := httpmsg.Error(err)
 		return c.JSON(code, echo.Map{
 			"message": msg,
@@ -20,7 +20,7 @@ func (h Handler) userVerify(c echo.Context) error {
 		})
 	}
 	req.Ctx = c.Request().Context()
-	resp, err := h.userSvc.Verify(req)
+	resp, err := h.userSvc.Id(req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}

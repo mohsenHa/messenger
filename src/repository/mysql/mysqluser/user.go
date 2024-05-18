@@ -87,6 +87,11 @@ func (d *DB) IsIdUnique(id string) (bool, error) {
 	return false, nil
 }
 
+func (d *DB) IsIdExist(id string) (bool, error) {
+	unique, err := d.IsIdUnique(id)
+	return !unique, err
+}
+
 func scanUser(scanner mysql.Scanner) (entity.User, error) {
 	var user entity.User
 	err := scanner.Scan(&user.Id, &user.PublicKey, &user.Code, &user.Status)
