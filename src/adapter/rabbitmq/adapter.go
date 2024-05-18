@@ -165,6 +165,14 @@ func (ca *ChannelAdapter) GetOutputChannel(name string) <-chan Message {
 	return ca.GetOutputChannel(name)
 }
 
+func (ca *ChannelAdapter) GetHeartbeatChannel(name string) chan<- bool {
+	if c, ok := ca.channels[name]; ok {
+		return c.GetHeartbeatChannel()
+	}
+	ca.NewChannel(name)
+	return ca.GetHeartbeatChannel(name)
+}
+
 func WaitForConnection(rabbitmq *Rabbitmq) {
 	fmt.Printf("the address in wait for connection %p \n", rabbitmq)
 

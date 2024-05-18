@@ -67,6 +67,35 @@ func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabb
 		)
 		failOnError(err, "Failed to declare an exchange")
 	}
+	_, errQueueDeclare := ch.QueueDeclare(
+		rabbitmqChannelParams.queue, // name
+		true,                        // durable
+		true,                        // delete when unused
+		false,                       // exclusive
+		false,                       // no-wait
+		nil,                         // arguments
+	)
+
+	if errQueueDeclare != nil {
+		ch := openChannel(conn)
+		_, errQueueDeclare := ch.QueueDeclarePassive(
+			rabbitmqChannelParams.queue, // name
+			true,                        // durable
+			true,                        // delete when unused
+			false,                       // exclusive
+			false,                       // no-wait
+			nil,                         // arguments
+		)
+		failOnError(errQueueDeclare, "Failed to declare a queue")
+	}
+
+	errQueueBind := ch.QueueBind(
+		rabbitmqChannelParams.queue,    // queue name
+		"",                             // routing key
+		rabbitmqChannelParams.exchange, // exchange
+		false,
+		nil)
+	failOnError(errQueueBind, "Failed to bind a queue")
 
 	rc := &rabbitmqChannel{
 		done:                   done,
@@ -106,6 +135,10 @@ func (rc *rabbitmqChannel) GetOutputChannel() <-chan Message {
 	return rc.outputChannel
 }
 
+func (rc *rabbitmqChannel) GetHeartbeatChannel() chan<- bool {
+	return rc.heartBeatSignalChannel
+}
+
 func (rc *rabbitmqChannel) start() {
 	rc.wg.Add(1)
 	go func() {
@@ -132,35 +165,6 @@ func (rc *rabbitmqChannel) startOutput() {
 			err = ch.Close()
 			failOnError(err, "Failed to close channel")
 		}(ch)
-
-		_, errQueueDeclare := ch.QueueDeclare(
-			rc.queue, // name
-			true,     // durable
-			true,     // delete when unused
-			false,    // exclusive
-			false,    // no-wait
-			nil,      // arguments
-		)
-
-		if errQueueDeclare != nil {
-			_, errQueueDeclare := ch.QueueDeclarePassive(
-				rc.queue, // name
-				true,     // durable
-				true,     // delete when unused
-				false,    // exclusive
-				false,    // no-wait
-				nil,      // arguments
-			)
-			failOnError(errQueueDeclare, "Failed to declare a queue")
-		}
-
-		errQueueBind := ch.QueueBind(
-			rc.queue,    // queue name
-			"",          // routing key
-			rc.exchange, // exchange
-			false,
-			nil)
-		failOnError(errQueueBind, "Failed to bind a queue")
 
 		msgs, errConsume := ch.Consume(
 			rc.queue, // queue
