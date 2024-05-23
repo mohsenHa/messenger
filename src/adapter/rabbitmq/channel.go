@@ -78,7 +78,7 @@ func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabb
 	_, errQueueDeclare := ch.QueueDeclare(
 		rabbitmqChannelParams.queue, // name
 		true,                        // durable
-		true,                        // delete when unused
+		false,                       // delete when unused
 		false,                       // exclusive
 		false,                       // no-wait
 		nil,                         // arguments
@@ -89,7 +89,7 @@ func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabb
 		_, errQueueDeclare := ch.QueueDeclarePassive(
 			rabbitmqChannelParams.queue, // name
 			true,                        // durable
-			true,                        // delete when unused
+			false,                       // delete when unused
 			false,                       // exclusive
 			false,                       // no-wait
 			nil,                         // arguments
