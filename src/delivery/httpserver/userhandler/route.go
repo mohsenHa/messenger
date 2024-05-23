@@ -1,6 +1,9 @@
 package userhandler
 
-import "github.com/labstack/echo/v4"
+import (
+	"github.com/labstack/echo/v4"
+	"github.com/mohsenHa/messenger/delivery/httpserver/middleware"
+)
 
 func (h Handler) SetRoutes(messageGroup *echo.Group) {
 
@@ -8,5 +11,6 @@ func (h Handler) SetRoutes(messageGroup *echo.Group) {
 	messageGroup.POST("/verify", h.userVerify)
 	messageGroup.POST("/login", h.userLogin)
 	messageGroup.POST("/id", h.userId)
+	messageGroup.POST("/public_key", h.publicKey, middleware.Auth(h.authService))
 
 }

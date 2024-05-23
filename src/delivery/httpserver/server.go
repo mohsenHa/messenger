@@ -39,7 +39,7 @@ func New(config config.Config, services RequiredServices, validators RequiredVal
 		Router:         echo.New(),
 		config:         config,
 		messageHandler: messagehandler.New(services.MessageService, services.AuthService, validators.MessageValidator),
-		userHandler:    userhandler.New(services.UserService, validators.UserValidator),
+		userHandler:    userhandler.New(services.UserService, validators.UserValidator, services.AuthService),
 	}
 }
 

@@ -1,20 +1,21 @@
 package uservalidator
 
 import (
+	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/mohsenHa/messenger/param/userparam"
 	"github.com/mohsenHa/messenger/pkg/errmsg"
 	"github.com/mohsenHa/messenger/pkg/richerror"
 )
 
-func (v Validator) ValidateIdRequest(req userparam.IdRequest) (map[string]string, error) {
-	const op = "uservalidator.ValidateIdRequest"
+func (v Validator) ValidatePublicKeyRequest(req userparam.PublicKeyRequest) (map[string]string, error) {
+	const op = "uservalidator.PublicKeyRequest"
 
 	if err := validation.ValidateStruct(&req,
 
-		validation.Field(&req.PublicKey,
+		validation.Field(&req.Id,
 			validation.Required,
-			validation.By(v.checkPublicKeyExist)),
+			validation.By(v.checkIdExist)),
 	); err != nil {
 		fieldErrors := make(map[string]string)
 
@@ -35,9 +36,18 @@ func (v Validator) ValidateIdRequest(req userparam.IdRequest) (map[string]string
 	return nil, nil
 }
 
-func (v Validator) checkPublicKeyExist(value interface{}) error {
-	publicKey := value.(string)
-	id := v.keyGen.CreateUserId(publicKey)
+func (v Validator) checkIdExist(value interface{}) error {
+	id := value.(string)
 
-	return v.checkIdExist(id)
+	if isExist, err := v.repo.IsIdExist(id); err != nil || !isExist {
+		if err != nil {
+			return err
+		}
+
+		if !isExist {
+			return fmt.Errorf(errmsg.ErrorMsgPublicKeyNotFound)
+		}
+	}
+
+	return nil
 }

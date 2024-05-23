@@ -11,7 +11,8 @@ import (
 )
 
 func (s Service) Receive(req messageparam.ReceiveRequest) error {
-	chanel := s.rabbitmq.GetOutputChannel(req.UserId)
+	closeChanelSignal := make(chan bool)
+	chanel := s.rabbitmq.GetOutputChannel(req.UserId, closeChanelSignal)
 	heartBeat := s.rabbitmq.GetHeartbeatChannel(req.UserId)
 	fmt.Println("Start web socket connection")
 
@@ -37,9 +38,11 @@ func (s Service) Receive(req messageparam.ReceiveRequest) error {
 				err = msg.Ack()
 				if err != nil {
 					logger.Logger.Error(err.Error())
-					return
+					continue
 				}
 			case <-websocketClosedChannel:
+				close(closeChanelSignal)
+				fmt.Println("websocket connection closed")
 				return
 			case <-time.After(time.Second):
 				err := wsutil.WriteServerMessage(conn, ws.OpPing, []byte("ping"))

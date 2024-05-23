@@ -5,21 +5,36 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
+	"fmt"
 	"github.com/mohsenHa/messenger/pkg/errmsg"
 	"github.com/mohsenHa/messenger/pkg/richerror"
 )
 
-func Encrypt(publicKeyPEM, message []byte) ([]byte, error) {
+func Encrypt(pk string, message string) (string, error) {
 	const op = "encryptdecrypt.Encrypt"
+	publicKeyPEM, err := base64.StdEncoding.DecodeString(pk)
+	if err != nil {
+		return "", richerror.New(op).WithErr(fmt.Errorf("invalid public key")).
+			WithMessage(errmsg.ErrorMsgInvalidInput).WithKind(richerror.KindInvalid)
+	}
 	publicKeyBlock, _ := pem.Decode(publicKeyPEM)
+	if publicKeyBlock == nil {
+		return "", richerror.New(op).WithErr(fmt.Errorf("invalid public key")).
+			WithMessage(errmsg.ErrorMsgInvalidInput).WithKind(richerror.KindInvalid)
+
+	}
 	publicKey, err := x509.ParsePKIXPublicKey(publicKeyBlock.Bytes)
 	if err != nil {
-		return nil, richerror.New(op).WithErr(err).
+		fmt.Println(err)
+		return "", richerror.New(op).WithErr(err).
 			WithMessage(errmsg.ErrorMsgSomethingWentWrong).WithKind(richerror.KindUnexpected)
 	}
-	return rsa.EncryptPKCS1v15(rand.Reader, publicKey.(*rsa.PublicKey), message)
+	encryptedCode, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey.(*rsa.PublicKey), []byte(message))
+
+	return base64.RawStdEncoding.EncodeToString(encryptedCode), nil
 }
 
 func GetMD5Hash(text string) string {

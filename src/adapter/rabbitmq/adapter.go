@@ -156,12 +156,12 @@ func (ca *ChannelAdapter) GetInputChannel(name string) chan<- []byte {
 	return ca.GetInputChannel(name)
 }
 
-func (ca *ChannelAdapter) GetOutputChannel(name string) <-chan Message {
+func (ca *ChannelAdapter) GetOutputChannel(name string, closeChanelSignal <-chan bool) <-chan Message {
 	if c, ok := ca.channels[name]; ok {
-		return c.GetOutputChannel()
+		return c.GetOutputChannel(closeChanelSignal)
 	}
 	ca.NewChannel(name)
-	return ca.GetOutputChannel(name)
+	return ca.GetOutputChannel(name, closeChanelSignal)
 }
 
 func (ca *ChannelAdapter) GetHeartbeatChannel(name string) chan<- bool {

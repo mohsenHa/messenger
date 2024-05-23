@@ -39,5 +39,5 @@ func (h Handler) sendMessage(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusCreated, resp)
+	return c.JSON(http.StatusOK, resp)
 }

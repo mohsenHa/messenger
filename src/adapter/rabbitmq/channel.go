@@ -9,18 +9,25 @@ import (
 	"time"
 )
 
+type OutputChannel struct {
+	closeChannel         <-chan bool
+	internalCloseChannel chan bool
+	messageChannel       chan Message
+	isClosed             bool
+}
 type rabbitmqChannel struct {
 	wg                     *sync.WaitGroup
 	done                   <-chan bool
 	rabbitmq               *Rabbitmq
 	inputChannel           chan []byte
-	outputChannel          []chan Message
+	outputChannels         []*OutputChannel
 	outputChannelMutex     *sync.RWMutex
 	exchange               string
 	queue                  string
 	maxRetryPolicy         int
 	closeSignalChannel     <-chan bool
 	heartBeatSignalChannel chan<- bool
+	openOutputConsumer     *sync.Once
 }
 type rabbitmqChannelParams struct {
 	rabbitmq               *Rabbitmq
@@ -50,7 +57,7 @@ func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabb
 		rabbitmqChannelParams.exchange, // name
 		"topic",                        // type
 		true,                           // durable
-		true,                           // auto-deleted
+		false,                          // auto-deleted
 		false,                          // internal
 		false,                          // no-wait
 		nil,                            // arguments
@@ -61,7 +68,7 @@ func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabb
 			rabbitmqChannelParams.exchange, // name
 			"topic",                        // type
 			true,                           // durable
-			true,                           // auto-deleted
+			false,                          // auto-deleted
 			false,                          // internal
 			false,                          // no-wait
 			nil,                            // arguments
@@ -108,8 +115,9 @@ func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabb
 		closeSignalChannel:     rabbitmqChannelParams.closeSignalChannel,
 		heartBeatSignalChannel: rabbitmqChannelParams.heartBeatSignalChannel,
 		inputChannel:           make(chan []byte, rabbitmqChannelParams.bufferSize),
-		outputChannel:          make([]chan Message, rabbitmqChannelParams.bufferSize),
+		outputChannels:         make([]*OutputChannel, rabbitmqChannelParams.bufferSize),
 		outputChannelMutex:     &sync.RWMutex{},
+		openOutputConsumer:     &sync.Once{},
 	}
 	rc.start()
 
@@ -127,24 +135,51 @@ func (rc *rabbitmqChannel) GetInputChannel() chan<- []byte {
 	return rc.inputChannel
 }
 
-func (rc *rabbitmqChannel) GetOutputChannel() <-chan Message {
+func (rc *rabbitmqChannel) GetOutputChannel(closeChanelSignal <-chan bool) <-chan Message {
+	rc.openOutputConsumer.Do(func() {
+		rc.wg.Add(1)
+		go func() {
+			defer rc.wg.Done()
+			rc.startOutput()
+		}()
+	})
+
+	return rc.NewOutputChannel(closeChanelSignal)
+}
+
+func (rc *rabbitmqChannel) NewOutputChannel(closeChanelSignal <-chan bool) <-chan Message {
+	channel := make(chan Message)
+	outputChanel := &OutputChannel{
+		closeChannel:         closeChanelSignal,
+		internalCloseChannel: make(chan bool),
+		messageChannel:       channel,
+		isClosed:             false,
+	}
+	rc.outputChannelMutex.Lock()
+	rc.outputChannels = append(rc.outputChannels, outputChanel)
+	rc.outputChannelMutex.Unlock()
+	rc.WaitForCloseOutputChannel(outputChanel)
+
+	return channel
+}
+
+func (rc *rabbitmqChannel) WaitForCloseOutputChannel(outputChanel *OutputChannel) {
 	rc.wg.Add(1)
 	go func() {
 		defer rc.wg.Done()
-		rc.startOutput()
+		for {
+			select {
+			case <-rc.done:
+				return
+			case <-outputChanel.closeChannel:
+				outputChanel.isClosed = true
+				return
+			case <-outputChanel.internalCloseChannel:
+				outputChanel.isClosed = true
+				return
+			}
+		}
 	}()
-
-	return rc.NewOutputChannel()
-}
-
-func (rc *rabbitmqChannel) NewOutputChannel() <-chan Message {
-	channel := make(chan Message)
-
-	rc.outputChannelMutex.Lock()
-	rc.outputChannel = append(rc.outputChannel, channel)
-	rc.outputChannelMutex.Unlock()
-
-	return channel
 }
 
 func (rc *rabbitmqChannel) GetHeartbeatChannel() chan<- bool {
@@ -206,54 +241,75 @@ func (rc *rabbitmqChannel) startOutput() {
 				return
 			case <-rc.closeSignalChannel:
 				fmt.Println("Receive close signal")
+				for _, c := range rc.outputChannels {
+					close(c.internalCloseChannel)
+				}
 				return
 			case msg := <-msgs:
-				rc.wg.Add(1)
-				go func() {
-					defer rc.wg.Done()
-
-					ackChan := make(chan bool)
-					ackCount := 0
-					message := Message{
-						Body: msg.Body,
-						Ack: func() error {
-							ackChan <- true
-							return nil
-						},
-					}
-
-					for _, c := range rc.outputChannel {
-						ackCount++
-						c <- message
-					}
-
-					rc.wg.Add(1)
-					go func() {
-						defer rc.wg.Done()
-						askTimeout := time.After(time.Second * 5)
-						for {
-							select {
-							case <-ackChan:
-								ackCount--
-							case <-askTimeout:
-								fmt.Println("Timeout on all ACKs")
-								return
-							default:
-								time.Sleep(time.Second)
-							}
-							if ackCount == 0 {
-								fmt.Println("All ack is done")
-								msg.Ack(false)
-								return
-							}
-						}
-					}()
-
-					rc.sendHeartBeatSignal()
-				}()
+				rc.receivedMessage(msg)
 			}
 		}
 	}()
+}
+func (rc *rabbitmqChannel) receivedMessage(msg amqp.Delivery) {
+	rc.wg.Add(1)
+	go func() {
+		defer rc.wg.Done()
+
+		ackChan := make(chan bool)
+		ackCount := 0
+		message := Message{
+			Body: msg.Body,
+			Ack: func() error {
+				ackChan <- true
+				return nil
+			},
+		}
+
+		for index, c := range rc.outputChannels {
+			if c.isClosed {
+				rc.deleteOutputChannel(index)
+				continue
+			}
+			ackCount++
+			c.messageChannel <- message
+		}
+		rc.processSubAck(ackChan, ackCount, msg)
+		rc.sendHeartBeatSignal()
+	}()
+
+}
+func (rc *rabbitmqChannel) processSubAck(ackChan <-chan bool, ackCount int, msg amqp.Delivery) {
+	rc.wg.Add(1)
+	go func() {
+		defer rc.wg.Done()
+		askTimeout := time.After(time.Second * 5)
+		for {
+			select {
+			case <-ackChan:
+				ackCount--
+			case <-askTimeout:
+				fmt.Println("Timeout on all ACKs")
+				return
+			default:
+				time.Sleep(time.Second)
+			}
+			if ackCount == 0 {
+				fmt.Println("All ack is done")
+				err := msg.Ack(false)
+				if err != nil {
+					fmt.Println("error in ack", err)
+				}
+				return
+			}
+		}
+	}()
+}
+
+func (rc *rabbitmqChannel) deleteOutputChannel(index int) {
+	rc.outputChannelMutex.Lock()
+	rc.outputChannels = append(rc.outputChannels[:index], rc.outputChannels[index+1:]...)
+	rc.outputChannelMutex.Unlock()
 }
 func (rc *rabbitmqChannel) sendHeartBeatSignal() {
 	rc.wg.Add(1)

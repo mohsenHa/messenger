@@ -1,7 +1,6 @@
 package keygenerator
 
 import (
-	"encoding/base64"
 	"fmt"
 	"github.com/labstack/gommon/random"
 	"github.com/mohsenHa/messenger/pkg/encryptdecrypt"
@@ -31,17 +30,8 @@ func (s Service) CreateCode() (string, error) {
 }
 
 func (s Service) EncryptCode(code, publicKey string) (string, error) {
-	pk, err := base64.StdEncoding.DecodeString(publicKey)
-	if err != nil {
-		return "", err
-	}
 
-	encryptedCode, err := encryptdecrypt.Encrypt(pk, []byte(code))
-	if err != nil {
-		return "", err
-	}
-
-	return base64.RawStdEncoding.EncodeToString(encryptedCode), nil
+	return encryptdecrypt.Encrypt(publicKey, code)
 }
 
 func (s Service) CreateUserId(publicKey string) string {
