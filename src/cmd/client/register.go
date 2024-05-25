@@ -36,7 +36,7 @@ func Register(request RegisterRequest) (RegisterResponse, error) {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return RegisterResponse{}, err
 	}
 
 	if resp.StatusCode != http.StatusCreated {

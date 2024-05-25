@@ -12,5 +12,6 @@ func (h Handler) SetRoutes(messageGroup *echo.Group) {
 	messageGroup.POST("/login", h.userLogin)
 	messageGroup.POST("/id", h.userId)
 	messageGroup.POST("/public_key", h.publicKey, middleware.Auth(h.authService))
+	messageGroup.GET("/info", h.info, middleware.Auth(h.authService))
 
 }

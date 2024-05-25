@@ -8,12 +8,17 @@ import (
 )
 
 func Messenger(user User) {
-	for {
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
 		fmt.Println("For send message please enter target id")
-		to := ""
-		_, err := fmt.Scanln(&to)
-		if err != nil {
-			fmt.Println(err)
+
+		to := scanner.Text()
+
+		if to == "exit" {
+			return
+		}
+		if to == "id" {
+			fmt.Printf("Your Id is %s \n", user.Id)
 			continue
 		}
 		publicKey, err := GetPublicKey(GetPublicKeyRequest{
@@ -22,13 +27,11 @@ func Messenger(user User) {
 		})
 		if err != nil {
 			fmt.Println(err)
-			break
+			continue
 		}
 		fmt.Printf("You send message to %s for end chat enter exit \n", to)
 		startSendMessage(publicKey.PublicKey, to, user.Token)
-
 	}
-
 }
 
 func startSendMessage(publicKey string, to string, token string) {
@@ -38,6 +41,7 @@ func startSendMessage(publicKey string, to string, token string) {
 		if message == "exit" {
 			return
 		}
+
 		encryptedMessage, err := encryptdecrypt.Encrypt(publicKey, message)
 		if err != nil {
 			fmt.Println(err)
