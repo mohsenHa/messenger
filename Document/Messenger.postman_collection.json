@@ -1,0 +1,1212 @@
+{
+	"info": {
+		"_postman_id": "453489ae-14f0-4945-8836-59a95604b737",
+		"name": "Messenger",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23929656",
+		"_collection_link": "https://bold-eclipse-365968.postman.co/workspace/Yelloadwise~10b0b108-0ca1-4aa0-9b2d-f9284a76d810/collection/23929656-453489ae-14f0-4945-8836-59a95604b737?action=share&source=collection_link&creator=23929656"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"public_key\":\"LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZzd0RRWUpLb1pJaHZjTkFRRUJCUUFEU2dBd1J3SkFieDhtSVlXaHZtUUVBcDNxSi9XUTZNTUw1ajg3Wng4eQp2Wnk3ZHdZV25lclBIQ29DL0ZtaHRPMDljZWxlSlZWQ2VkeEtKbzRmdHFLQ2wzRFJuWXpZNndJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0t\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/user/register",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"user",
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"public_key\":\"LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZzd0RRWUpLb1pJaHZjTkFRRUJCUUFEU2dBd1J3SkFieDhtSVlXaHZtUUVBcDNxSi9XUTZNTUw1ajg3Wng4eQp2Wnk3ZHdZV25lclBIQ29DL0ZtaHRPMDljZWxlSlZWQ2VkeEtKbzRmdHFLQ2wzRFJuWXpZNndJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0t\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/register",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"register"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "148"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 12:36:37 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "fPplFRqbseKujIMePhnoPqlkXkNuqZfo"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"f3e5a282f0cd1000d558a42b2108e6fe\",\n    \"encrypted_code\": \"WG6MLcxVUyHdc4pB23v6wHs52d29IlrhCc29yiiU2Xex9Y3xUHnD0yEiLtsyR/5h+N1Cfd4s9Lpq+AR1UXF4YA\"\n}"
+						},
+						{
+							"name": "Invalid public key",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"public_key\":\"LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZzd0RRWUpLb1pJaHZjTkFRRUJCUUFEU2dBd1J3SkFieDhtSVlXaHZtUUVBcDNxSi9XUTZNTUw1ajg3Wng4eQp2Wnk3ZHdZV25lclBIQ29DL0ZtaHRPMDljZWxlSlZWQ2VkeEtKbzRmdHFLQ2w\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/register",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"register"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "46"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 12:37:34 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "uvAgxwGcbepYjDOjPBINslVDlCSwWwXV"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"unexpected error: invalid input\"\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/register",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"register"
+									]
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "70"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 12:37:58 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "wVCDRuDnexKnegtEUZPlBfXDmJJFzRFv"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"errors\": {\n        \"public_key\": \"cannot be blank\"\n    },\n    \"message\": \"invalid input\"\n}"
+						},
+						{
+							"name": "duplicated public key",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"public_key\":\"LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZzd0RRWUpLb1pJaHZjTkFRRUJCUUFEU2dBd1J3SkFieDhtSVlXaHZtUUVBcDNxSi9XUTZNTUw1ajg3Wng4eQp2Wnk3ZHdZV25lclBIQ29DL0ZtaHRPMDljZWxlSlZWQ2VkeEtKbzRmdHFLQ2wzRFJuWXpZNndJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0t\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/register",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"register"
+									]
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "100"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 12:42:04 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "RsZAPqTYWrNSMDyfxHTzhlpvvJnNdxHZ"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"errors\": {\n        \"public_key\": \"public key is already registered try to login\"\n    },\n    \"message\": \"invalid input\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Id",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"public_key\":\"LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZzd0RRWUpLb1pJaHZjTkFRRUJCUUFEU2dBd1J3SkFieDhtSVlXaHZtUUVBcDNxSi9XUTZNTUw1ajg3Wng4eQp2Wnk3ZHdZV25lclBIQ29DL0ZtaHRPMDljZWxlSlZWQ2VkeEtKbzRmdHFLQ2wzRFJuWXpZNndJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0t\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/user/id",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"user",
+								"id"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"public_key\":\"LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZzd0RRWUpLb1pJaHZjTkFRRUJCUUFEU2dBd1J3SkFieDhtSVlXaHZtUUVBcDNxSi9XUTZNTUw1ajg3Wng4eQp2Wnk3ZHdZV25lclBIQ29DL0ZtaHRPMDljZWxlSlZWQ2VkeEtKbzRmdHFLQ2wzRFJuWXpZNndJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0t\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/id",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"id"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "42"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 12:38:31 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "AISqFwJLpdPHqZHHUcVrVRYqsNLXVYeg"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"f3e5a282f0cd1000d558a42b2108e6fe\"\n}"
+						},
+						{
+							"name": "Invalid public key",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"public_key\":\"LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZzd0RRWUpLb1pJaHZjTkFRRUJCUUFEU2dBd1J3SkFWNVhDMnY1L3R1blI5Yzl6ZzA1MFhNNFU2MUxadUlKbQp4VUU4Yk0vckI0TVMwRWtIVmJ2dEMyYXVIcE43T3BZMkZYUzcyaWVITDF0TjR5ZjhRMWltZVFJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0t\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/id",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"id"
+									]
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "75"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 12:38:47 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "aKrmPavIcwIsMgzpZCeIlcjnglSndGUC"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"errors\": {\n        \"public_key\": \"public key not found\"\n    },\n    \"message\": \"invalid input\"\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/id",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"id"
+									]
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "70"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 12:39:19 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "jBHvgxLqgTocYAYwhLaOMSLFuVSiXgsM"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"errors\": {\n        \"public_key\": \"cannot be blank\"\n    },\n    \"message\": \"invalid input\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Public Key",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\":\"f3e5a282f0cd1000d558a42b2108e6fe\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/user/public_key",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"user",
+								"public_key"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Invalid JWT token",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\":\"f3e5a282f0cd1000d558a42b2108e6fe\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/public_key",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"public_key"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "37"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 12:41:23 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "yKXwROsBMwysBezdRsWEJnrpVBiUejDy"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"invalid or expired jwt\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\":\"f3e5a282f0cd1000d558a42b2108e6fe\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/user/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\":\"f3e5a282f0cd1000d558a42b2108e6fe\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/login",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "108"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 12:43:46 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "nwtRoLrsLJpYLFOMBzkqRmbBHCYNyVuJ"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"encrypted_code\": \"VnLQUcczmKweaQS1uG+S0kfl3toqKqgET83as6NO4KNpmOOFNaOkP09Bco37pH1FGAPwFfK2p7yEEXn94BsCyA\"\n}"
+						},
+						{
+							"name": "Invalid Id",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\":\"f3e5a282f0cd1000d5fe\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/login",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"login"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "49"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 12:44:11 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "VqIXXFsPfdNSjJtzHtVePNPpUbbrkNxM"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"unexpected error: record not found\"\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/login",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"login"
+									]
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "62"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 12:44:29 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "eTvvvYGbpsgbmODHbneSAoVpRtfisonc"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"errors\": {\n        \"id\": \"cannot be blank\"\n    },\n    \"message\": \"invalid input\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Verify",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\":\"b8fdebffe3f4f16c741858f10606e8a1\",\r\n    \"code\":\"xkdqhyqxHz\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/user/verify",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"user",
+								"verify"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Invalid code",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\":\"f3e5a282f0cd1000d558a42b2108e6fe\",\r\n    \"code\":\"v6dhJiSHtd\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/verify",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"verify"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "27"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 13:36:21 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "hlgaMnsRMHIawIpZoUluLOdROPZgYdmW"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"invalid code\"\n}"
+						},
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\":\"b8fdebffe3f4f16c741858f10606e8a1\",\r\n    \"code\":\"xkdqhyqxHz\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/verify",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"verify"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "511"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 13:36:54 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "mnUdzfXOAWvGKDZokVFsDOFHFAIfTjWb"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"b8fdebffe3f4f16c741858f10606e8a1\",\n    \"token\": \"eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTgxMTMwMTQsImlkIjoiYjhmZGViZmZlM2Y0ZjE2Yzc0MTg1OGYxMDYwNmU4YTEifQ.q4XXcyo-IVjU1siRJUoLwX_4rxY_KiC_qQkmOuuS6oCgl51LTB39v_e6sN3Dn3vTjTNyHK4TdUWDkQBEdohbc79sKKZKdNBjnAHBxq_pWoVEZhL157GdPR6jPgEG2mBkVlmZSlIKigXw5YxXWeEQRoC2OWZ5b3HM_kESAFTOauiON7C5xA5krJzN0Gp6thSKZLk4HNQPrGmuxFwQEspKLLfE7FeN6Oq4jF1clSXnq7aZ8ru1VayaCpjF4cDr2jeWMBkmwUrRN0TXSYaiRjsSN9Zi3pwL6x36CrszB_QZnkt2v-8cQl1_0ohEXwJal2XHiugRhNTKfWB-fCk8ZVy6dQ\"\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/user/verify",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"verify"
+									]
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "64"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 13:37:47 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "WaCBvAveXpCyDKYPoTVCSaaRbXCHVWJn"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"errors\": {\n        \"code\": \"cannot be blank\"\n    },\n    \"message\": \"invalid input\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Info",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/user/info",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"user",
+								"info"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/user/info",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"info"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "442"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 13:38:37 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "GlFAWTCwqKJnxUSlMVdGEpEyNnDMjOwH"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"info\": {\n        \"id\": \"b8fdebffe3f4f16c741858f10606e8a1\",\n        \"status\": 1,\n        \"public_key\": \"LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0ZKT3pIZEk3dVZ2LzdXOGlpbDJ4UnA5N3dDcgp5NERBbE1CNDlXNkc5THVjcDYxVGpRVnpYdFhpNU9YZTdZMjliVVAreUZwSUpYVGNRaHFFekZWNDBMcVlBcm1WCi9tR0g4RW1NRjMvTHZvaElpanFBQ1N2WWlDZEFna3F3anlBOWFCckRBUXlLMS9EcG9aK2ZVZjUxTUxZYi9venIKWWpnYms4Y2loYkJqQyt2VEFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ==\"\n    }\n}"
+						},
+						{
+							"name": "Invalid JWT token",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/user/info",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"user",
+										"info"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "37"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 13:39:00 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "OOFufMhkBvDNBpqwwjxOLkjfUuVrwrEz"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"invalid or expired jwt\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Message",
+			"item": [
+				{
+					"name": "send",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"to_id\":\"f3e5a282f0cd1000d558a42b2108e6fe\",\r\n    \"message\": \"Hi\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/message/send",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"message",
+								"send"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"to_id\":\"f3e5a282f0cd1000d558a42b2108e6fe\",\r\n    \"message\": \"Hi\"\r\n\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/message/send",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"message",
+										"send"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "848"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 13:40:49 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "bGojRvOvAAfOaZDcIoywXsWfpQFMnWDE"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"send_message\": {\n        \"id\": \"c7162b50-4c6a-49aa-b8ad-d416eb259b57\",\n        \"from\": {\n            \"id\": \"b8fdebffe3f4f16c741858f10606e8a1\",\n            \"public_key\": \"LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0ZKT3pIZEk3dVZ2LzdXOGlpbDJ4UnA5N3dDcgp5NERBbE1CNDlXNkc5THVjcDYxVGpRVnpYdFhpNU9YZTdZMjliVVAreUZwSUpYVGNRaHFFekZWNDBMcVlBcm1WCi9tR0g4RW1NRjMvTHZvaElpanFBQ1N2WWlDZEFna3F3anlBOWFCckRBUXlLMS9EcG9aK2ZVZjUxTUxZYi9venIKWWpnYms4Y2loYkJqQyt2VEFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ==\"\n        },\n        \"to\": {\n            \"id\": \"f3e5a282f0cd1000d558a42b2108e6fe\",\n            \"public_key\": \"LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZzd0RRWUpLb1pJaHZjTkFRRUJCUUFEU2dBd1J3SkFieDhtSVlXaHZtUUVBcDNxSi9XUTZNTUw1ajg3Wng4eQp2Wnk3ZHdZV25lclBIQ29DL0ZtaHRPMDljZWxlSlZWQ2VkeEtKbzRmdHFLQ2wzRFJuWXpZNndJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0t\"\n        },\n        \"body\": \"Hi\",\n        \"send_time\": \"2024-06-10T13:40:49.651244621Z\"\n    }\n}"
+						},
+						{
+							"name": "Invalid to id",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"to_id\":\"44e1bcc565ee43a56b9adaa577d27fb2\",\r\n    \"message\": \"Hi\"\r\n\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/message/send",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"message",
+										"send"
+									]
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "66"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 13:41:01 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "RbAVbGtgKXHAaIHQWIgqPzrOcGEmQfrX"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"errors\": {\n        \"to_id\": \"record not found\"\n    },\n    \"message\": \"invalid input\"\n}"
+						},
+						{
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\r\n\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/message/send",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"message",
+										"send"
+									]
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "93"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 10 Jun 2024 13:41:21 GMT"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "NXGddOekOwlqwIgZpyxsAvsRhTaMQjlF"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"errors\": {\n        \"message\": \"cannot be blank\",\n        \"to_id\": \"cannot be blank\"\n    },\n    \"message\": \"invalid input\"\n}"
+						}
+					]
+				},
+				{
+					"name": "receive",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/message/receive",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"message",
+								"receive"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "messenger.local"
+		},
+		{
+			"key": "JWT_TOKEN",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
