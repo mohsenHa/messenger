@@ -4,9 +4,8 @@ ARG GO_IMAGE_VERSION
 FROM ${GO_IMAGE_NAME}:${GO_IMAGE_VERSION}
 
 # Set working directory
-WORKDIR /home/www/src
+WORKDIR /home/app/src
 
-RUN go install github.com/cosmtrek/air@latest
+RUN go install github.com/air-verse/air@v1.52.2
 
-# Expose port 8000
-#EXPOSE 8000
+ENTRYPOINT /home/app/serve/serve.bash

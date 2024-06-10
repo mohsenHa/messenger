@@ -19,9 +19,16 @@ services:
         PMA_HOST: db
         PMA_PORT: 3306
         UPLOAD_LIMIT: 5G
+        PMA_ABSOLUTE_URI: /db_manager
       restart: always
-      ports:
-        - "8081:80"
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.${SERVICE_NAME}_db_manager.service=${SERVICE_NAME}_db_manager"
+        - "traefik.http.routers.${SERVICE_NAME}_db_manager.rule=Host(`${SERVICE_NAME}.local`)&&PathPrefix(`/db_manager`)"
+        - "traefik.http.routers.${SERVICE_NAME}_db_manager.entrypoints=web"
+        - "traefik.http.routers.${SERVICE_NAME}_db_manager.middlewares=${SERVICE_NAME}_strip_db_manager"
+        - "traefik.http.services.${SERVICE_NAME}_db_manager.loadbalancer.server.port=80"
+        - "traefik.http.middlewares.${SERVICE_NAME}_strip_db_manager.stripprefix.prefixes=/db_manager"
 
 #Volumes
 volumes:

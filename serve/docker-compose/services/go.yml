@@ -8,24 +8,21 @@ services:
         GO_IMAGE_NAME: ${GO_IMAGE_NAME}
         GO_IMAGE_VERSION: ${GO_IMAGE_VERSION}
     image: chat-build:${GO_IMAGE_VERSION}
-    entrypoint:
-      - air
-      - "-c"
-      - /home/www/serve/docker-compose/services/go/.air.toml
     restart: always
     volumes:
-      - ../../../:/home/www
+      - ../../../:/home/app
     depends_on:
       - rabbitmq
       - db
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.service=${COMPOSE_PROJECT_NAME}"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${COMPOSE_PROJECT_NAME}.local`)"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=web"
-      - "traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=8088"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}_profiler.service=${COMPOSE_PROJECT_NAME}_profiler"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}_profiler.rule=Host(`${COMPOSE_PROJECT_NAME}_profiler.local`)"
-      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}_profiler.entrypoints=web"
-      - "traefik.http.services.${COMPOSE_PROJECT_NAME}_profiler.loadbalancer.server.port=1234"
-
+      - "traefik.http.routers.${SERVICE_NAME}.service=${SERVICE_NAME}"
+      - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SERVICE_NAME}.local`)"
+      - "traefik.http.routers.${SERVICE_NAME}.entrypoints=web"
+      - "traefik.http.routers.${SERVICE_NAME}_profiler.service=${SERVICE_NAME}_profiler"
+      - "traefik.http.routers.${SERVICE_NAME}_profiler.rule=Host(`${SERVICE_NAME}.local`)&&PathPrefix(`/profiler`)"
+      - "traefik.http.routers.${SERVICE_NAME}_profiler.entrypoints=web"
+      - "traefik.http.routers.${SERVICE_NAME}_profiler.middlewares=${SERVICE_NAME}_strip_profiler"
+      - "traefik.http.middlewares.${SERVICE_NAME}_strip_profiler.stripprefix.prefixes=/profiler"
+      - "traefik.http.services.${SERVICE_NAME}_profiler.loadbalancer.server.port=1234"
+      - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=8088"

@@ -3,7 +3,9 @@ services:
     image: rabbitmq:3-management-alpine
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.rabbitmq_${COMPOSE_PROJECT_NAME}_manager.service=rabbitmq_${COMPOSE_PROJECT_NAME}_manager"
-      - "traefik.http.routers.rabbitmq_${COMPOSE_PROJECT_NAME}_manager.rule=Host(`rabbitmq.${COMPOSE_PROJECT_NAME}.local`)"
-      - "traefik.http.routers.rabbitmq_${COMPOSE_PROJECT_NAME}_manager.entrypoints=web"
-      - "traefik.http.services.rabbitmq_${COMPOSE_PROJECT_NAME}_manager.loadbalancer.server.port=15672"
+      - "traefik.http.routers.${SERVICE_NAME}_rabbitmq_manager.service=${SERVICE_NAME}_rabbitmq_manager"
+      - "traefik.http.routers.${SERVICE_NAME}_rabbitmq_manager.rule=Host(`${SERVICE_NAME}.local`)&&PathPrefix(`/rabbitmq_manager`)"
+      - "traefik.http.routers.${SERVICE_NAME}_rabbitmq_manager.middlewares=${SERVICE_NAME}_strip_rabbitmq_manager"
+      - "traefik.http.routers.${SERVICE_NAME}_rabbitmq_manager.entrypoints=web"
+      - "traefik.http.middlewares.${SERVICE_NAME}_strip_rabbitmq_manager.stripprefix.prefixes=/rabbitmq_manager"
+      - "traefik.http.services.${SERVICE_NAME}_rabbitmq_manager.loadbalancer.server.port=15672"
