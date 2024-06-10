@@ -65,7 +65,7 @@ func main() {
 	<-ctxWithTimeout.Done()
 }
 func profiling(cfg config.Config, wg *sync.WaitGroup, done <-chan bool) {
-	fmt.Printf("Profiling enabled on port %d", cfg.Application.ProfilingPort)
+	fmt.Printf("Profiling enabled on port %d\n", cfg.Application.ProfilingPort)
 	srv := &http.Server{Addr: fmt.Sprintf(":%d", cfg.Application.ProfilingPort)}
 	wg.Add(1)
 
