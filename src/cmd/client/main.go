@@ -16,7 +16,7 @@ func (ht hostType) ws(api string) string {
 	return "ws://" + string(ht) + "/" + api
 }
 
-const targetHost hostType = "messenger.local"
+var targetHost hostType = "127.0.0.1:8080"
 
 func main() {
 	wg := &sync.WaitGroup{}
@@ -26,6 +26,10 @@ func main() {
 	if len(args) > 0 {
 		userFile = args[0] + ".json"
 	}
+	if len(args) > 1 {
+		targetHost = hostType(args[1])
+	}
+
 	user, err := NewUserFromFile(userFile)
 	if err != nil {
 		panic(err)

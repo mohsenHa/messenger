@@ -9,8 +9,8 @@ import (
 
 func Messenger(user User) {
 	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Println("For send message please enter target id")
 	for scanner.Scan() {
-		fmt.Println("For send message please enter target id")
 
 		to := scanner.Text()
 
@@ -31,6 +31,7 @@ func Messenger(user User) {
 		}
 		fmt.Printf("You send message to %s for end chat enter exit \n", to)
 		startSendMessage(publicKey.PublicKey, to, user.Token)
+		fmt.Println("For send message please enter target id")
 	}
 }
 

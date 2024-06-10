@@ -54,7 +54,7 @@ func Receive(wg *sync.WaitGroup, done <-chan bool, user User) {
 					fmt.Println("error on decrypt message", err)
 					continue
 				}
-				fmt.Printf("Message From: %v\n", msg.From.Id)
+				fmt.Printf("Message From: %v\t%v\n", msg.From.Id, msg.SendTime.Format("2006-01-02 15:04:05"))
 				fmt.Printf("Message: %s\n", decryptedBytes)
 			}
 		}
