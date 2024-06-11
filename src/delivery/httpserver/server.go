@@ -8,12 +8,12 @@ import (
 	"github.com/mohsenHa/messenger/delivery/httpserver/messagehandler"
 	"github.com/mohsenHa/messenger/delivery/httpserver/userhandler"
 	"github.com/mohsenHa/messenger/logger"
+	"github.com/mohsenHa/messenger/logger/loggerentity"
 	"github.com/mohsenHa/messenger/service/authservice"
 	"github.com/mohsenHa/messenger/service/messageservice"
 	"github.com/mohsenHa/messenger/service/userservice"
 	"github.com/mohsenHa/messenger/validator/messagevalidator"
 	"github.com/mohsenHa/messenger/validator/uservalidator"
-	"go.uber.org/zap"
 )
 
 type Server struct {
@@ -66,19 +66,22 @@ func (s Server) Serve() {
 				errMsg = v.Error.Error()
 			}
 
-			logger.Logger.Named("http-server").Info("request",
-				zap.String("request_id", v.RequestID),
-				zap.String("host", v.Host),
-				zap.String("content-length", v.ContentLength),
-				zap.String("protocol", v.Protocol),
-				zap.String("method", v.Method),
-				zap.Duration("latency", v.Latency),
-				zap.String("error", errMsg),
-				zap.String("remote_ip", v.RemoteIP),
-				zap.Int64("response_size", v.ResponseSize),
-				zap.String("uri", v.URI),
-				zap.Int("status", v.Status),
-			)
+			logger.NewLog("http-server").
+				WithCategory(loggerentity.CategoryRequestResponse).
+				WithSubCategory(loggerentity.SubCategoryInternalRequest).
+				With(loggerentity.ExtraKeyRequestId, v.RequestID).
+				With(loggerentity.ExtraKeyHost, v.Host).
+				With(loggerentity.ExtraKeyContentLength, v.ContentLength).
+				With(loggerentity.ExtraKeyProtocol, v.Protocol).
+				With(loggerentity.ExtraKeyMethod, v.Method).
+				With(loggerentity.ExtraKeyLatency, v.Latency).
+				With(loggerentity.ExtraKeyErrorMessage, errMsg).
+				With(loggerentity.ExtraKeyRemoteIp, v.RemoteIP).
+				With(loggerentity.ExtraKeyResponseSize, v.ResponseSize).
+				With(loggerentity.ExtraKeyUri, v.URI).
+				With(loggerentity.ExtraKeyUriPath, v.URIPath).
+				With(loggerentity.ExtraKeyStatusCode, v.Status).
+				Info()
 
 			return nil
 		},

@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/mohsenHa/messenger/adapter/rabbitmq"
+	"github.com/mohsenHa/messenger/logger"
 	"github.com/mohsenHa/messenger/repository/mysql"
 	"github.com/mohsenHa/messenger/service/authservice"
 	"github.com/mohsenHa/messenger/service/keygenerator"
@@ -24,4 +25,5 @@ type Config struct {
 	Rabbitmq     rabbitmq.Config     `koanf:"rabbitmq"`
 	KeyGenerator keygenerator.Config `koanf:"key_generator"`
 	Auth         authservice.Config  `koanf:"auth"`
+	Logger       logger.Config       `koanf:"logger"`
 }

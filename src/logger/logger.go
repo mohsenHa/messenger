@@ -1,38 +1,68 @@
 package logger
 
 import (
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
-	"os"
+	"github.com/mohsenHa/messenger/logger/adapter/zaplogger"
+	"github.com/mohsenHa/messenger/logger/loggerentity"
 	"sync"
 )
 
-var Logger *zap.Logger
+type Config struct {
+	Driver     string `koanf:"driver"`
+	Level      string `koanf:"level"`
+	Filepath   string `koanf:"filepath"`
+	LocalTime  bool   `koanf:"local_time"`
+	MaxBackups int    `koanf:"max_backups"`
+	MaxSize    int    `koanf:"max_size"`
+	MaxAge     int    `koanf:"max_ager"`
+}
 
-var once = sync.Once{}
+type Logger interface {
+	Init()
 
-func init() {
+	Debug(cat loggerentity.Category, sub loggerentity.SubCategory, msg string, extra map[loggerentity.ExtraKey]interface{})
+	Debugf(template string, args ...interface{})
+
+	Info(cat loggerentity.Category, sub loggerentity.SubCategory, msg string, extra map[loggerentity.ExtraKey]interface{})
+	Infof(template string, args ...interface{})
+
+	Warn(cat loggerentity.Category, sub loggerentity.SubCategory, msg string, extra map[loggerentity.ExtraKey]interface{})
+	Warnf(template string, args ...interface{})
+
+	Error(cat loggerentity.Category, sub loggerentity.SubCategory, msg string, extra map[loggerentity.ExtraKey]interface{})
+	Errorf(template string, args ...interface{})
+
+	Fatal(cat loggerentity.Category, sub loggerentity.SubCategory, msg string, extra map[loggerentity.ExtraKey]interface{})
+	Fatalf(template string, args ...interface{})
+}
+
+var (
+	once   = sync.Once{}
+	logger Logger
+)
+
+func NewLogger(cfg Config) Logger {
 	once.Do(func() {
-		Logger, _ = zap.NewProduction()
-
-		config := zap.NewProductionEncoderConfig()
-		config.EncodeTime = zapcore.ISO8601TimeEncoder
-		defaultEncoder := zapcore.NewJSONEncoder(config)
-		writer := zapcore.AddSync(&lumberjack.Logger{
-			Filename:  "./logs/log.json",
-			LocalTime: false,
-			MaxSize:   10, // megabytes
-			//MaxBackups: 10,
-			MaxAge: 30, // days
-		})
-
-		stdOutWriter := zapcore.AddSync(os.Stdout)
-		defaultLogLevel := zapcore.InfoLevel
-		core := zapcore.NewTee(
-			zapcore.NewCore(defaultEncoder, writer, defaultLogLevel),
-			zapcore.NewCore(defaultEncoder, stdOutWriter, zap.InfoLevel),
-		)
-		Logger = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
+		if cfg.Driver == zaplogger.DriverName {
+			logger = zaplogger.NewZapLogger(zaplogger.Config{
+				Level:      cfg.Level,
+				Filename:   cfg.Filepath,
+				Filepath:   cfg.Filepath,
+				LocalTime:  cfg.LocalTime,
+				MaxBackups: cfg.MaxBackups,
+				MaxSize:    cfg.MaxSize,
+				MaxAge:     cfg.MaxAge,
+			})
+			return
+		}
+		panic("logger not supported")
 	})
+
+	return logger
+}
+
+func L() Logger {
+	if logger == nil {
+		panic("you need to init logger first")
+	}
+	return logger
 }

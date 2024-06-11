@@ -2,6 +2,7 @@ package httpmsg
 
 import (
 	"github.com/mohsenHa/messenger/logger"
+	"github.com/mohsenHa/messenger/logger/loggerentity"
 	"github.com/mohsenHa/messenger/pkg/errmsg"
 	"github.com/mohsenHa/messenger/pkg/richerror"
 	"net/http"
@@ -17,7 +18,11 @@ func Error(err error) (message string, code int) {
 
 		// we should not expose unexpected error messages
 		if code >= 500 {
-			logger.Logger.Error(msg)
+			logger.NewLog(msg).
+				WithCategory(loggerentity.CategoryRequestResponse).
+				WithSubCategory(loggerentity.SubCategoryInternalResponse).
+				With(loggerentity.ExtraKeyErrorMessage, err.Error()).
+				Error()
 			msg = errmsg.ErrorMsgSomethingWentWrong
 		}
 

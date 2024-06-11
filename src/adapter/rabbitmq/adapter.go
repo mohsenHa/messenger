@@ -2,6 +2,8 @@ package rabbitmq
 
 import (
 	"fmt"
+	"github.com/mohsenHa/messenger/logger"
+	"github.com/mohsenHa/messenger/logger/loggerentity"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"sync"
 	"time"
@@ -26,7 +28,6 @@ func New(done <-chan bool, wg *sync.WaitGroup, config Config) *ChannelAdapter {
 		cond:       cond,
 		connection: &amqp.Connection{},
 	}
-	fmt.Printf("Main rabbitmq object address %p \n", &rabbitmq)
 	c := &ChannelAdapter{
 		done:                     done,
 		wg:                       wg,
@@ -39,9 +40,14 @@ func New(done <-chan bool, wg *sync.WaitGroup, config Config) *ChannelAdapter {
 	for {
 		err := c.connect()
 		time.Sleep(time.Second * time.Duration(config.ReconnectSecond))
-		failOnError(err, "rabbitmq connection failed")
 		if err == nil {
 			break
+		} else {
+			logger.NewLog("rabbitmq connection error").
+				WithCategory(loggerentity.CategoryRabbitMQ).
+				WithSubCategory(loggerentity.SubCategoryRabbitMQConnection).
+				With(loggerentity.ExtraKeyErrorMessage, err.Error()).
+				Error()
 		}
 	}
 
@@ -57,12 +63,15 @@ func (ca *ChannelAdapter) connect() error {
 	conn, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%d/%s",
 		ca.config.User, ca.config.Password, ca.config.Host,
 		ca.config.Port, ca.config.Vhost))
-	failOnError(err, "Failed to connect to rabbitmq server")
 	if err != nil {
 		return err
 	}
 	ca.rabbitmq.connection = conn
-	fmt.Println("Connected to rabbitmq server")
+	logger.NewLog("Connected to rabbitmq server").
+		WithCategory(loggerentity.CategoryRabbitMQ).
+		WithSubCategory(loggerentity.SubCategoryRabbitMQConnection).
+		Debug()
+
 	ca.rabbitmq.cond.Broadcast()
 
 	ca.wg.Add(1)
@@ -98,9 +107,14 @@ func (ca *ChannelAdapter) waitForConnectionClose() {
 			for {
 				e := ca.connect()
 				time.Sleep(time.Second * time.Duration(ca.config.ReconnectSecond))
-				failOnError(e, "Connection failed to rabbitmq")
 				if e == nil {
 					break
+				} else {
+					logger.NewLog("Connection failed to rabbitmq").
+						WithCategory(loggerentity.CategoryRabbitMQ).
+						WithSubCategory(loggerentity.SubCategoryRabbitMQConnection).
+						With(loggerentity.ExtraKeyErrorMessage, err.Error()).
+						Error()
 				}
 			}
 
@@ -109,10 +123,11 @@ func (ca *ChannelAdapter) waitForConnectionClose() {
 	}
 }
 
-func (ca *ChannelAdapter) NewChannel(name string) {
-	closeSignalChannel := make(chan bool, 10)
+func (ca *ChannelAdapter) NewChannel(name string) error {
+	rabbitMQCloseSignal := make(chan bool, 10)
+	noOutputConsumer := make(chan bool, 10)
 	heartBeatSignalChannel := make(chan bool, 10)
-	ca.channels[name] = newChannel(
+	channel, err := newChannel(
 		ca.done,
 		ca.wg,
 		rabbitmqChannelParams{
@@ -121,13 +136,19 @@ func (ca *ChannelAdapter) NewChannel(name string) {
 			queue:                  name + "-queue",
 			bufferSize:             ca.config.BufferSize,
 			maxRetryPolicy:         ca.config.MaxRetryPolicy,
-			closeSignalChannel:     closeSignalChannel,
+			rabbitMQCloseSignal:    rabbitMQCloseSignal,
+			noOutputConsumer:       noOutputConsumer,
 			heartBeatSignalChannel: heartBeatSignalChannel,
 		})
-	ca.CloseIdleChannel(name, closeSignalChannel, heartBeatSignalChannel)
+	if err != nil {
+		return err
+	}
+	ca.channels[name] = channel
+	ca.CloseIdleChannel(name, rabbitMQCloseSignal, noOutputConsumer, heartBeatSignalChannel)
+	return nil
 }
 
-func (ca *ChannelAdapter) CloseIdleChannel(name string, closeSignalChannel chan<- bool, heartBeatSignalChannel <-chan bool) {
+func (ca *ChannelAdapter) CloseIdleChannel(name string, closeSignalChannel chan bool, noOutputConsumer chan bool, heartBeatSignalChannel <-chan bool) {
 	ca.wg.Add(1)
 	go func() {
 		defer ca.wg.Done()
@@ -135,12 +156,20 @@ func (ca *ChannelAdapter) CloseIdleChannel(name string, closeSignalChannel chan<
 			timer := time.After(time.Second * time.Duration(ca.config.ChannelCleanerTimerInSecond))
 			select {
 			case <-timer:
-				fmt.Printf("Channel is idle more than %d seconds\n", ca.config.ChannelCleanerTimerInSecond)
+				logger.L().Debugf("Channel is idle more than %d seconds. produce close signal.", ca.config.ChannelCleanerTimerInSecond)
+				close(closeSignalChannel)
+				delete(ca.channels, name)
+				return
+			case <-noOutputConsumer:
+				logger.L().Debugf("Channel there is no output consumer produce close signal")
 				close(closeSignalChannel)
 				delete(ca.channels, name)
 				return
 			case <-heartBeatSignalChannel:
 				break
+			case <-closeSignalChannel:
+				delete(ca.channels, name)
+				return
 			case <-ca.done:
 				return
 			}
@@ -148,40 +177,43 @@ func (ca *ChannelAdapter) CloseIdleChannel(name string, closeSignalChannel chan<
 	}()
 }
 
-func (ca *ChannelAdapter) GetInputChannel(name string) chan<- []byte {
+func (ca *ChannelAdapter) GetInputChannel(name string) (chan<- []byte, error) {
 	if c, ok := ca.channels[name]; ok {
-		return c.GetInputChannel()
+		return c.GetInputChannel(), nil
 	}
-	ca.NewChannel(name)
+	err := ca.NewChannel(name)
+	if err != nil {
+		return nil, err
+	}
 	return ca.GetInputChannel(name)
 }
 
-func (ca *ChannelAdapter) GetOutputChannel(name string, closeChanelSignal <-chan bool) <-chan Message {
+func (ca *ChannelAdapter) GetOutputChannel(name string, outputChannelCloseSignal <-chan bool) (<-chan Message, error) {
 	if c, ok := ca.channels[name]; ok {
-		return c.GetOutputChannel(closeChanelSignal)
+		return c.GetOutputChannel(outputChannelCloseSignal), nil
 	}
-	ca.NewChannel(name)
-	return ca.GetOutputChannel(name, closeChanelSignal)
+	err := ca.NewChannel(name)
+	if err != nil {
+		return nil, err
+	}
+	return ca.GetOutputChannel(name, outputChannelCloseSignal)
 }
 
-func (ca *ChannelAdapter) GetHeartbeatChannel(name string) chan<- bool {
+func (ca *ChannelAdapter) GetHeartbeatChannel(name string) (chan<- bool, error) {
 	if c, ok := ca.channels[name]; ok {
-		return c.GetHeartbeatChannel()
+		return c.GetHeartbeatChannel(), nil
 	}
-	ca.NewChannel(name)
+	err := ca.NewChannel(name)
+	if err != nil {
+		return nil, err
+	}
 	return ca.GetHeartbeatChannel(name)
 }
 
 func WaitForConnection(rabbitmq *Rabbitmq) {
-	fmt.Printf("the address in wait for connection %p \n", rabbitmq)
-
 	rabbitmq.cond.L.Lock()
 	defer rabbitmq.cond.L.Unlock()
 	for rabbitmq.connection.IsClosed() {
-		fmt.Println(rabbitmq.connection.IsClosed())
-		fmt.Println("Before wait for connection")
 		rabbitmq.cond.Wait()
-		fmt.Println("After wait for connection")
-
 	}
 }

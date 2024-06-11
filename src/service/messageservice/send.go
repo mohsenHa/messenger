@@ -15,7 +15,8 @@ func (s Service) Send(req messageparam.SendRequest) (messageparam.SendResponse, 
 
 	id := uuid.New()
 	sendMessage := messageparam.SendMessage{
-		Id: id.String(),
+		Id:   id.String(),
+		Type: messageparam.SendMessageMessageType,
 		From: messageparam.SendUser{
 			Id:        fromUser.Id,
 			PublicKey: fromUser.PublicKey,
@@ -32,7 +33,10 @@ func (s Service) Send(req messageparam.SendRequest) (messageparam.SendResponse, 
 		return messageparam.SendResponse{}, fmt.Errorf("unexpected error: %w", err)
 	}
 
-	chanel := s.rabbitmq.GetInputChannel(req.ToId)
+	chanel, err := s.rabbitmq.GetInputChannel(req.ToId)
+	if err != nil {
+		return messageparam.SendResponse{}, err
+	}
 	chanel <- messageByte
 
 	return messageparam.SendResponse{SendMessage: sendMessage}, nil

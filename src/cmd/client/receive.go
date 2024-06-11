@@ -44,21 +44,39 @@ func Receive(wg *sync.WaitGroup, done <-chan bool, user User) {
 				fmt.Println("End listening")
 				return
 			case msg := <-messageChannel:
-				decodeString, err := base64.RawStdEncoding.DecodeString(msg.Body)
-				if err != nil {
-					fmt.Println("error on decode message", err)
-					continue
+				switch msg.Type {
+				case messageparam.SendMessageDeliverType:
+					deliverReceived(msg)
+					break
+				case messageparam.SendMessageMessageType:
+					messageReceived(msg, user)
+					break
+				default:
+					fmt.Printf("Message recived with invalid type %v", msg)
 				}
-				decryptedBytes, err := rsa.DecryptPKCS1v15(nil, user.PrivateKeyRSA, decodeString)
-				if err != nil {
-					fmt.Println("error on decrypt message", err)
-					continue
-				}
-				fmt.Printf("Message From: %v\t%v\n", msg.From.Id, msg.SendTime.Format("2006-01-02 15:04:05"))
-				fmt.Printf("Message: %s\n", decryptedBytes)
 			}
 		}
 	}()
+}
+
+func deliverReceived(msg messageparam.SendMessage) {
+	fmt.Printf("Message %s delivered to: %v\t%v\n", msg.Id, msg.From.Id,
+		msg.SendTime.Format("2006-01-02 15:04:05"))
+}
+
+func messageReceived(msg messageparam.SendMessage, user User) {
+	decodeString, err := base64.RawStdEncoding.DecodeString(msg.Body)
+	if err != nil {
+		fmt.Println("error on decode message", err)
+		return
+	}
+	decryptedBytes, err := rsa.DecryptPKCS1v15(nil, user.PrivateKeyRSA, decodeString)
+	if err != nil {
+		fmt.Println("error on decrypt message", err)
+		return
+	}
+	fmt.Printf("Message From: %v\t%v\n", msg.From.Id, msg.SendTime.Format("2006-01-02 15:04:05"))
+	fmt.Printf("Message: %s\n", decryptedBytes)
 }
 
 func startListen(c *websocket.Conn, messageChannel chan<- messageparam.SendMessage, closedChannel chan bool) {

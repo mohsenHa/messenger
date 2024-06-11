@@ -36,4 +36,14 @@ key_generator:
   id_prefix: simple_prefix
   id_postfix: simple_postfix
 
+logger:
+  driver: zap
+  level: debug
+  filepath: ./logs/log.json
+  local_time: false
+  max_backups: 10
+  max_size: 10
+  max_ager: 30
+
+
 

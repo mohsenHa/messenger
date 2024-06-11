@@ -6,6 +6,7 @@ import (
 	"github.com/mohsenHa/messenger/adapter/rabbitmq"
 	"github.com/mohsenHa/messenger/config"
 	"github.com/mohsenHa/messenger/delivery/httpserver"
+	"github.com/mohsenHa/messenger/logger"
 	"github.com/mohsenHa/messenger/repository/migrator/mysqlmigrator"
 	"github.com/mohsenHa/messenger/repository/mysql"
 	"github.com/mohsenHa/messenger/repository/mysql/mysqluser"
@@ -30,6 +31,8 @@ func main() {
 
 	cfg := config.Load("config.yml")
 	fmt.Printf("cfg: %+v\n", cfg)
+
+	_ = logger.NewLogger(cfg.Logger)
 
 	mgr := mysqlmigrator.New(cfg.Mysql)
 	mgr.Up()

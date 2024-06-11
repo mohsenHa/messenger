@@ -1,19 +1,18 @@
 package rabbitmq
 
 import (
-	"context"
-	"fmt"
 	"github.com/mohsenHa/messenger/logger"
+	"github.com/mohsenHa/messenger/logger/loggerentity"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"sync"
 	"time"
 )
 
 type OutputChannel struct {
-	closeChannel         <-chan bool
-	internalCloseChannel chan bool
-	messageChannel       chan Message
-	isClosed             bool
+	outputChannelCloseSignal <-chan bool
+	internalCloseChannel     chan bool
+	messageChannel           chan Message
+	isClosed                 bool
 }
 type rabbitmqChannel struct {
 	wg                     *sync.WaitGroup
@@ -25,7 +24,8 @@ type rabbitmqChannel struct {
 	exchange               string
 	queue                  string
 	maxRetryPolicy         int
-	closeSignalChannel     <-chan bool
+	rabbitMQCloseSignal    <-chan bool
+	noOutputConsumer       chan<- bool
 	heartBeatSignalChannel chan<- bool
 	openOutputConsumer     *sync.Once
 }
@@ -35,25 +35,37 @@ type rabbitmqChannelParams struct {
 	queue                  string
 	bufferSize             int
 	maxRetryPolicy         int
-	closeSignalChannel     <-chan bool
+	rabbitMQCloseSignal    <-chan bool
+	noOutputConsumer       chan<- bool
 	heartBeatSignalChannel chan<- bool
 }
 
 const (
+	loggerGroupName          = "adapter.rabbitmq"
 	timeForCallAgainDuration = 10
 	retriesToTimeRatio       = 2
 )
 
-func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabbitmqChannelParams) *rabbitmqChannel {
+func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabbitmqChannelParams) (*rabbitmqChannel, error) {
 	conn := rabbitmqChannelParams.rabbitmq.connection
 	WaitForConnection(rabbitmqChannelParams.rabbitmq)
-	ch := openChannel(conn)
+	ch, err := openChannel(conn)
+	if err != nil {
+		return nil, err
+	}
+
 	defer func(ch *amqp.Channel) {
-		err := ch.Close()
-		failOnError(err, "failed to close a channel")
+		err = ch.Close()
+		if err != nil {
+			logger.NewLog("rabbitmq close connection error").
+				WithCategory(loggerentity.CategoryRabbitMQ).
+				WithSubCategory(loggerentity.SubCategoryRabbitMQConnection).
+				With(loggerentity.ExtraKeyErrorMessage, err.Error()).
+				Error()
+		}
 	}(ch)
 
-	err := ch.ExchangeDeclare(
+	err = ch.ExchangeDeclare(
 		rabbitmqChannelParams.exchange, // name
 		"topic",                        // type
 		true,                           // durable
@@ -63,7 +75,10 @@ func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabb
 		nil,                            // arguments
 	)
 	if err != nil {
-		ch := openChannel(conn)
+		ch, err = openChannel(conn)
+		if err != nil {
+			return nil, err
+		}
 		err = ch.ExchangeDeclarePassive(
 			rabbitmqChannelParams.exchange, // name
 			"topic",                        // type
@@ -73,7 +88,9 @@ func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabb
 			false,                          // no-wait
 			nil,                            // arguments
 		)
-		failOnError(err, "Failed to declare an exchange")
+		if err != nil {
+			return nil, err
+		}
 	}
 	_, errQueueDeclare := ch.QueueDeclare(
 		rabbitmqChannelParams.queue, // name
@@ -85,8 +102,11 @@ func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabb
 	)
 
 	if errQueueDeclare != nil {
-		ch := openChannel(conn)
-		_, errQueueDeclare := ch.QueueDeclarePassive(
+		ch, err = openChannel(conn)
+		if err != nil {
+			return nil, err
+		}
+		_, errQueueDeclare = ch.QueueDeclarePassive(
 			rabbitmqChannelParams.queue, // name
 			true,                        // durable
 			false,                       // delete when unused
@@ -94,16 +114,20 @@ func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabb
 			false,                       // no-wait
 			nil,                         // arguments
 		)
-		failOnError(errQueueDeclare, "Failed to declare a queue")
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	errQueueBind := ch.QueueBind(
+	err = ch.QueueBind(
 		rabbitmqChannelParams.queue,    // queue name
 		"",                             // routing key
 		rabbitmqChannelParams.exchange, // exchange
 		false,
 		nil)
-	failOnError(errQueueBind, "Failed to bind a queue")
+	if err != nil {
+		return nil, err
+	}
 
 	rc := &rabbitmqChannel{
 		done:                   done,
@@ -112,7 +136,8 @@ func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabb
 		queue:                  rabbitmqChannelParams.queue,
 		rabbitmq:               rabbitmqChannelParams.rabbitmq,
 		maxRetryPolicy:         rabbitmqChannelParams.maxRetryPolicy,
-		closeSignalChannel:     rabbitmqChannelParams.closeSignalChannel,
+		rabbitMQCloseSignal:    rabbitmqChannelParams.rabbitMQCloseSignal,
+		noOutputConsumer:       rabbitmqChannelParams.noOutputConsumer,
 		heartBeatSignalChannel: rabbitmqChannelParams.heartBeatSignalChannel,
 		inputChannel:           make(chan []byte, rabbitmqChannelParams.bufferSize),
 		outputChannels:         make([]*OutputChannel, rabbitmqChannelParams.bufferSize),
@@ -121,69 +146,7 @@ func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabb
 	}
 	rc.start()
 
-	return rc
-}
-
-func openChannel(conn *amqp.Connection) *amqp.Channel {
-	ch, err := conn.Channel()
-	failOnError(err, "failed to open a channel")
-
-	return ch
-}
-
-func (rc *rabbitmqChannel) GetInputChannel() chan<- []byte {
-	return rc.inputChannel
-}
-
-func (rc *rabbitmqChannel) GetOutputChannel(closeChanelSignal <-chan bool) <-chan Message {
-	rc.openOutputConsumer.Do(func() {
-		rc.wg.Add(1)
-		go func() {
-			defer rc.wg.Done()
-			rc.startOutput()
-		}()
-	})
-
-	return rc.NewOutputChannel(closeChanelSignal)
-}
-
-func (rc *rabbitmqChannel) NewOutputChannel(closeChanelSignal <-chan bool) <-chan Message {
-	channel := make(chan Message)
-	outputChanel := &OutputChannel{
-		closeChannel:         closeChanelSignal,
-		internalCloseChannel: make(chan bool),
-		messageChannel:       channel,
-		isClosed:             false,
-	}
-	rc.outputChannelMutex.Lock()
-	rc.outputChannels = append(rc.outputChannels, outputChanel)
-	rc.outputChannelMutex.Unlock()
-	rc.WaitForCloseOutputChannel(outputChanel)
-
-	return channel
-}
-
-func (rc *rabbitmqChannel) WaitForCloseOutputChannel(outputChanel *OutputChannel) {
-	rc.wg.Add(1)
-	go func() {
-		defer rc.wg.Done()
-		for {
-			select {
-			case <-rc.done:
-				return
-			case <-outputChanel.closeChannel:
-				outputChanel.isClosed = true
-				return
-			case <-outputChanel.internalCloseChannel:
-				outputChanel.isClosed = true
-				return
-			}
-		}
-	}()
-}
-
-func (rc *rabbitmqChannel) GetHeartbeatChannel() chan<- bool {
-	return rc.heartBeatSignalChannel
+	return rc, nil
 }
 
 func (rc *rabbitmqChannel) start() {
@@ -191,196 +154,6 @@ func (rc *rabbitmqChannel) start() {
 	go func() {
 		defer rc.wg.Done()
 		go rc.startInput()
-	}()
-}
-
-func (rc *rabbitmqChannel) startOutput() {
-	rc.wg.Add(1)
-	WaitForConnection(rc.rabbitmq)
-	go func() {
-		defer rc.wg.Done()
-		ch, err := rc.rabbitmq.connection.Channel()
-
-		failOnError(err, "Failed to open a channel")
-		if err != nil {
-			rc.callMeNextTime(rc.startOutput)
-
-			return
-		}
-
-		defer func(ch *amqp.Channel) {
-			err = ch.Close()
-			failOnError(err, "Failed to close channel")
-		}(ch)
-
-		msgs, errConsume := ch.Consume(
-			rc.queue, // queue
-			"",       // consumer
-			false,    // auto-ack
-			false,    // exclusive
-			false,    // no-local
-			false,    // no-wait
-			nil,      // arguments
-		)
-		failOnError(errConsume, "failed to consume")
-		if err != nil {
-			rc.callMeNextTime(rc.startOutput)
-
-			return
-		}
-
-		for {
-			if ch.IsClosed() {
-				rc.callMeNextTime(rc.startOutput)
-
-				return
-			}
-			select {
-			case <-rc.done:
-
-				return
-			case <-rc.closeSignalChannel:
-				fmt.Println("Receive close signal")
-				for _, c := range rc.outputChannels {
-					close(c.internalCloseChannel)
-				}
-				return
-			case msg := <-msgs:
-				rc.receivedMessage(msg)
-			}
-		}
-	}()
-}
-func (rc *rabbitmqChannel) receivedMessage(msg amqp.Delivery) {
-	rc.wg.Add(1)
-	go func() {
-		defer rc.wg.Done()
-
-		ackChan := make(chan bool)
-		ackCount := 0
-		message := Message{
-			Body: msg.Body,
-			Ack: func() error {
-				ackChan <- true
-				return nil
-			},
-		}
-
-		for index, c := range rc.outputChannels {
-			if c.isClosed {
-				rc.deleteOutputChannel(index)
-				continue
-			}
-			ackCount++
-			c.messageChannel <- message
-		}
-		rc.processSubAck(ackChan, ackCount, msg)
-		rc.sendHeartBeatSignal()
-	}()
-
-}
-func (rc *rabbitmqChannel) processSubAck(ackChan <-chan bool, ackCount int, msg amqp.Delivery) {
-	rc.wg.Add(1)
-	go func() {
-		defer rc.wg.Done()
-		askTimeout := time.After(time.Second * 5)
-		for {
-			select {
-			case <-ackChan:
-				ackCount--
-			case <-askTimeout:
-				fmt.Println("Timeout on all ACKs")
-				return
-			default:
-				time.Sleep(time.Second)
-			}
-			if ackCount == 0 {
-				fmt.Println("All ack is done")
-				err := msg.Ack(false)
-				if err != nil {
-					fmt.Println("error in ack", err)
-				}
-				return
-			}
-		}
-	}()
-}
-
-func (rc *rabbitmqChannel) deleteOutputChannel(index int) {
-	rc.outputChannelMutex.Lock()
-	rc.outputChannels = append(rc.outputChannels[:index], rc.outputChannels[index+1:]...)
-	rc.outputChannelMutex.Unlock()
-}
-func (rc *rabbitmqChannel) sendHeartBeatSignal() {
-	rc.wg.Add(1)
-	go func() {
-		defer rc.wg.Done()
-		rc.heartBeatSignalChannel <- true
-	}()
-}
-func (rc *rabbitmqChannel) startInput() {
-	rc.wg.Add(1)
-	WaitForConnection(rc.rabbitmq)
-	go func() {
-		defer rc.wg.Done()
-
-		ch, err := rc.rabbitmq.connection.Channel()
-		failOnError(err, "Failed to open a channel")
-		if err != nil {
-			rc.callMeNextTime(rc.startInput)
-
-			return
-		}
-		defer func(ch *amqp.Channel) {
-			err = ch.Close()
-			failOnError(err, "Failed to close channel")
-		}(ch)
-
-		for {
-			if ch.IsClosed() {
-				rc.callMeNextTime(rc.startInput)
-
-				return
-			}
-			select {
-			case <-rc.done:
-
-				return
-			case <-rc.closeSignalChannel:
-				fmt.Println("Receive close signal")
-				return
-
-			case msg := <-rc.inputChannel:
-				rc.publishToRabbitmq(ch, msg, 0)
-				rc.sendHeartBeatSignal()
-			}
-		}
-	}()
-}
-
-func (rc *rabbitmqChannel) publishToRabbitmq(ch *amqp.Channel, msg []byte, tries int) {
-	if tries > rc.maxRetryPolicy {
-		logger.Logger.Error(fmt.Sprintf("job failed after %d tries", tries))
-
-		return
-	}
-	rc.wg.Add(1)
-	go func() {
-		defer rc.wg.Done()
-		time.Sleep(time.Second * time.Duration(tries*retriesToTimeRatio))
-		errPWC := ch.PublishWithContext(context.Background(),
-			rc.exchange, // exchange
-			"",          // routing key
-			false,       // mandatory
-			false,       // immediate
-			amqp.Publishing{
-				ContentType: "text/plain",
-				Body:        msg,
-			})
-		failOnError(errPWC, "failed on ACK")
-		if errPWC != nil {
-			rc.publishToRabbitmq(ch, msg, tries+1)
-		}
 	}()
 }
 
@@ -393,9 +166,11 @@ func (rc *rabbitmqChannel) callMeNextTime(f func()) {
 	}()
 }
 
-func failOnError(err error, msg string) {
+func openChannel(conn *amqp.Connection) (*amqp.Channel, error) {
+	ch, err := conn.Channel()
+
 	if err != nil {
-		logger.Logger.Error(err.Error())
-		fmt.Println(err, msg)
+		return nil, err
 	}
+	return ch, nil
 }

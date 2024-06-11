@@ -16,12 +16,20 @@ type SendResponse struct {
 	SendMessage SendMessage `json:"send_message"`
 }
 
+type SendMessageType string
+
+const (
+	SendMessageDeliverType SendMessageType = "deliver"
+	SendMessageMessageType SendMessageType = "message"
+)
+
 type SendMessage struct {
-	Id       string    `json:"id"`
-	From     SendUser  `json:"from"`
-	To       SendUser  `json:"to"`
-	Body     string    `json:"body"`
-	SendTime time.Time `json:"send_time"`
+	Id       string          `json:"id"`
+	Type     SendMessageType `json:"type"`
+	From     SendUser        `json:"from"`
+	To       SendUser        `json:"to"`
+	Body     string          `json:"body"`
+	SendTime time.Time       `json:"send_time"`
 }
 
 type SendUser struct {
