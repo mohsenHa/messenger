@@ -32,4 +32,6 @@ destination/worker_log.json
 
 temp
 .env
-key
+
+src/key/*
+!src/key/.gitkeep

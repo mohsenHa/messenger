@@ -36,6 +36,8 @@ You must set below host in host file:
 127.0.0.1 SERVICE_NAME.local
 ```
 
+- Generate RSA Key pairs (KeySize: 2048) and store to `src/key`
+
 - Done.
 
 Now you can test APIs with postman or use sample golang client. 
