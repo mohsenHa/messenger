@@ -17,6 +17,9 @@ cp serve/.env.compose.example serve/.env
 if you want you can update variables.
 In windows please check the `EOL` of the line it must be `Unix(LF)` otherwise your config not work.
 
+
+- Generate RSA Key pairs (KeySize: 2048) and store to `src/key`
+
 - Start docker compose
 
 Windows:
@@ -35,8 +38,7 @@ You must set below host in host file:
 ```
 127.0.0.1 SERVICE_NAME.local
 ```
-
-- Generate RSA Key pairs (KeySize: 2048) and store to `src/key`
+Note: The `SERVICE_NAME` is configured in `.env` file.
 
 - Done.
 
@@ -62,6 +64,7 @@ You can run the client command in separate command line with different user file
 
 ### URLs
 - Base API URL: `http://SERVICE_NAME.local`
+- Health check API URL: `http://SERVICE_NAME.local/health-check`
 - Profiler URL: `http://SERVICE_NAME.local/profiler/debug/pprof/`
 - PHPMyAdmin URL: `http://SERVICE_NAME.local/db_manager/`
 - Rabbitmq manager URL: `http://SERVICE_NAME.local/rabbitmq_manager/`
