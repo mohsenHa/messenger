@@ -47,7 +47,7 @@ For run client run this command.
 
 [Postman collection](document%2FMessenger.postman_collection.json)
 
-[Swagger](document%2FMessenger.openapi.yml)
+[Swagger](https://mohsenha.github.io/messenger/swagger/)
 
 Windows:
 ```shell
