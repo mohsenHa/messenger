@@ -13,7 +13,7 @@ auth:
   access_ttl_second: 86400
 
 http_server:
-  port: 8088
+  port: 8080
 
 rabbitmq:
   user: guest
