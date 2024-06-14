@@ -1,0 +1,579 @@
+openapi: 3.0.0
+info:
+  title: Messenger
+  version: 1.0.0
+servers:
+  - url: http://{{base_url}}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+tags:
+  - name: User
+  - name: Message
+paths:
+  /user/register:
+    post:
+      tags:
+        - User
+      summary: Register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                public_key: >-
+                  LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZzd0RRWUpLb1pJaHZjTkFRRUJCUUFEU2dBd1J3SkFieDhtSVlXaHZtUUVBcDNxSi9XUTZNTUw1ajg3Wng4eQp2Wnk3ZHdZV25lclBIQ29DL0ZtaHRPMDljZWxlSlZWQ2VkeEtKbzRmdHFLQ2wzRFJuWXpZNndJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0t
+      responses:
+        '201':
+          description: Created
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+                example: '148'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Date:
+              schema:
+                type: string
+                example: Mon, 10 Jun 2024 12:36:37 GMT
+            X-Request-Id:
+              schema:
+                type: string
+                example: fPplFRqbseKujIMePhnoPqlkXkNuqZfo
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: f3e5a282f0cd1000d558a42b2108e6fe
+                encrypted_code: >-
+                  WG6MLcxVUyHdc4pB23v6wHs52d29IlrhCc29yiiU2Xex9Y3xUHnD0yEiLtsyR/5h+N1Cfd4s9Lpq+AR1UXF4YA
+        '400':
+          description: Bad Request
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+                example: '46'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Date:
+              schema:
+                type: string
+                example: Mon, 10 Jun 2024 12:37:34 GMT
+            X-Request-Id:
+              schema:
+                type: string
+                example: uvAgxwGcbepYjDOjPBINslVDlCSwWwXV
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                message: 'unexpected error: invalid input'
+        '422':
+          description: Unprocessable Entity
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+                example: '70'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Date:
+              schema:
+                type: string
+                example: Mon, 10 Jun 2024 12:37:58 GMT
+            X-Request-Id:
+              schema:
+                type: string
+                example: wVCDRuDnexKnegtEUZPlBfXDmJJFzRFv
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: Bad request
+                  value:
+                    errors:
+                      public_key: cannot be blank
+                    message: invalid input
+                example-1:
+                  summary: duplicated public key
+                  value:
+                    errors:
+                      public_key: public key is already registered try to login
+                    message: invalid input
+  /user/id:
+    post:
+      tags:
+        - User
+      summary: Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                public_key: >-
+                  LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZzd0RRWUpLb1pJaHZjTkFRRUJCUUFEU2dBd1J3SkFieDhtSVlXaHZtUUVBcDNxSi9XUTZNTUw1ajg3Wng4eQp2Wnk3ZHdZV25lclBIQ29DL0ZtaHRPMDljZWxlSlZWQ2VkeEtKbzRmdHFLQ2wzRFJuWXpZNndJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0t
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+                example: '42'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Date:
+              schema:
+                type: string
+                example: Mon, 10 Jun 2024 12:38:31 GMT
+            X-Request-Id:
+              schema:
+                type: string
+                example: AISqFwJLpdPHqZHHUcVrVRYqsNLXVYeg
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: f3e5a282f0cd1000d558a42b2108e6fe
+        '422':
+          description: Unprocessable Entity
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+                example: '75'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Date:
+              schema:
+                type: string
+                example: Mon, 10 Jun 2024 12:38:47 GMT
+            X-Request-Id:
+              schema:
+                type: string
+                example: aKrmPavIcwIsMgzpZCeIlcjnglSndGUC
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: Invalid public key
+                  value:
+                    errors:
+                      public_key: public key not found
+                    message: invalid input
+                example-1:
+                  summary: Bad request
+                  value:
+                    errors:
+                      public_key: cannot be blank
+                    message: invalid input
+  /user/public_key:
+    post:
+      tags:
+        - User
+      summary: Public Key
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                id: f3e5a282f0cd1000d558a42b2108e6fe
+      security:
+        - bearerAuth: []
+      responses:
+        '401':
+          description: Unauthorized
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+                example: '37'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Date:
+              schema:
+                type: string
+                example: Mon, 10 Jun 2024 12:41:23 GMT
+            X-Request-Id:
+              schema:
+                type: string
+                example: yKXwROsBMwysBezdRsWEJnrpVBiUejDy
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                message: invalid or expired jwt
+  /user/login:
+    post:
+      tags:
+        - User
+      summary: Login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                id: f3e5a282f0cd1000d558a42b2108e6fe
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+                example: '108'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Date:
+              schema:
+                type: string
+                example: Mon, 10 Jun 2024 12:43:46 GMT
+            X-Request-Id:
+              schema:
+                type: string
+                example: nwtRoLrsLJpYLFOMBzkqRmbBHCYNyVuJ
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                encrypted_code: >-
+                  VnLQUcczmKweaQS1uG+S0kfl3toqKqgET83as6NO4KNpmOOFNaOkP09Bco37pH1FGAPwFfK2p7yEEXn94BsCyA
+        '400':
+          description: Bad Request
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+                example: '49'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Date:
+              schema:
+                type: string
+                example: Mon, 10 Jun 2024 12:44:11 GMT
+            X-Request-Id:
+              schema:
+                type: string
+                example: VqIXXFsPfdNSjJtzHtVePNPpUbbrkNxM
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                message: 'unexpected error: record not found'
+        '422':
+          description: Unprocessable Entity
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+                example: '62'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Date:
+              schema:
+                type: string
+                example: Mon, 10 Jun 2024 12:44:29 GMT
+            X-Request-Id:
+              schema:
+                type: string
+                example: eTvvvYGbpsgbmODHbneSAoVpRtfisonc
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                  id: cannot be blank
+                message: invalid input
+  /user/verify:
+    post:
+      tags:
+        - User
+      summary: Verify
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                id: b8fdebffe3f4f16c741858f10606e8a1
+                code: xkdqhyqxHz
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+                example: '511'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Date:
+              schema:
+                type: string
+                example: Mon, 10 Jun 2024 13:36:54 GMT
+            X-Request-Id:
+              schema:
+                type: string
+                example: mnUdzfXOAWvGKDZokVFsDOFHFAIfTjWb
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: b8fdebffe3f4f16c741858f10606e8a1
+                token: >-
+                  eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTgxMTMwMTQsImlkIjoiYjhmZGViZmZlM2Y0ZjE2Yzc0MTg1OGYxMDYwNmU4YTEifQ.q4XXcyo-IVjU1siRJUoLwX_4rxY_KiC_qQkmOuuS6oCgl51LTB39v_e6sN3Dn3vTjTNyHK4TdUWDkQBEdohbc79sKKZKdNBjnAHBxq_pWoVEZhL157GdPR6jPgEG2mBkVlmZSlIKigXw5YxXWeEQRoC2OWZ5b3HM_kESAFTOauiON7C5xA5krJzN0Gp6thSKZLk4HNQPrGmuxFwQEspKLLfE7FeN6Oq4jF1clSXnq7aZ8ru1VayaCpjF4cDr2jeWMBkmwUrRN0TXSYaiRjsSN9Zi3pwL6x36CrszB_QZnkt2v-8cQl1_0ohEXwJal2XHiugRhNTKfWB-fCk8ZVy6dQ
+        '400':
+          description: Bad Request
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+                example: '27'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Date:
+              schema:
+                type: string
+                example: Mon, 10 Jun 2024 13:36:21 GMT
+            X-Request-Id:
+              schema:
+                type: string
+                example: hlgaMnsRMHIawIpZoUluLOdROPZgYdmW
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                message: invalid code
+        '422':
+          description: Unprocessable Entity
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+                example: '64'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Date:
+              schema:
+                type: string
+                example: Mon, 10 Jun 2024 13:37:47 GMT
+            X-Request-Id:
+              schema:
+                type: string
+                example: WaCBvAveXpCyDKYPoTVCSaaRbXCHVWJn
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errors:
+                  code: cannot be blank
+                message: invalid input
+  /user/info:
+    get:
+      tags:
+        - User
+      summary: Info
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+                example: '442'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Date:
+              schema:
+                type: string
+                example: Mon, 10 Jun 2024 13:38:37 GMT
+            X-Request-Id:
+              schema:
+                type: string
+                example: GlFAWTCwqKJnxUSlMVdGEpEyNnDMjOwH
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                info:
+                  id: b8fdebffe3f4f16c741858f10606e8a1
+                  status: 1
+                  public_key: >-
+                    LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0ZKT3pIZEk3dVZ2LzdXOGlpbDJ4UnA5N3dDcgp5NERBbE1CNDlXNkc5THVjcDYxVGpRVnpYdFhpNU9YZTdZMjliVVAreUZwSUpYVGNRaHFFekZWNDBMcVlBcm1WCi9tR0g4RW1NRjMvTHZvaElpanFBQ1N2WWlDZEFna3F3anlBOWFCckRBUXlLMS9EcG9aK2ZVZjUxTUxZYi9venIKWWpnYms4Y2loYkJqQyt2VEFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ==
+        '401':
+          description: Unauthorized
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+                example: '37'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Date:
+              schema:
+                type: string
+                example: Mon, 10 Jun 2024 13:39:00 GMT
+            X-Request-Id:
+              schema:
+                type: string
+                example: OOFufMhkBvDNBpqwwjxOLkjfUuVrwrEz
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                message: invalid or expired jwt
+  /message/send:
+    post:
+      tags:
+        - Message
+      summary: send
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                to_id: f3e5a282f0cd1000d558a42b2108e6fe
+                message: Hi
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+                example: '848'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Date:
+              schema:
+                type: string
+                example: Mon, 10 Jun 2024 13:40:49 GMT
+            X-Request-Id:
+              schema:
+                type: string
+                example: bGojRvOvAAfOaZDcIoywXsWfpQFMnWDE
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                send_message:
+                  id: c7162b50-4c6a-49aa-b8ad-d416eb259b57
+                  from:
+                    id: b8fdebffe3f4f16c741858f10606e8a1
+                    public_key: >-
+                      LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0ZKT3pIZEk3dVZ2LzdXOGlpbDJ4UnA5N3dDcgp5NERBbE1CNDlXNkc5THVjcDYxVGpRVnpYdFhpNU9YZTdZMjliVVAreUZwSUpYVGNRaHFFekZWNDBMcVlBcm1WCi9tR0g4RW1NRjMvTHZvaElpanFBQ1N2WWlDZEFna3F3anlBOWFCckRBUXlLMS9EcG9aK2ZVZjUxTUxZYi9venIKWWpnYms4Y2loYkJqQyt2VEFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ==
+                  to:
+                    id: f3e5a282f0cd1000d558a42b2108e6fe
+                    public_key: >-
+                      LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZzd0RRWUpLb1pJaHZjTkFRRUJCUUFEU2dBd1J3SkFieDhtSVlXaHZtUUVBcDNxSi9XUTZNTUw1ajg3Wng4eQp2Wnk3ZHdZV25lclBIQ29DL0ZtaHRPMDljZWxlSlZWQ2VkeEtKbzRmdHFLQ2wzRFJuWXpZNndJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0t
+                  body: Hi
+                  send_time: '2024-06-10T13:40:49.651244621Z'
+        '422':
+          description: Unprocessable Entity
+          headers:
+            Content-Length:
+              schema:
+                type: integer
+                example: '66'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Date:
+              schema:
+                type: string
+                example: Mon, 10 Jun 2024 13:41:01 GMT
+            X-Request-Id:
+              schema:
+                type: string
+                example: RbAVbGtgKXHAaIHQWIgqPzrOcGEmQfrX
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: Invalid to id
+                  value:
+                    errors:
+                      to_id: record not found
+                    message: invalid input
+                example-1:
+                  summary: Bad request
+                  value:
+                    errors:
+                      message: cannot be blank
+                      to_id: cannot be blank
+                    message: invalid input
+  /message/receive:
+    get:
+      tags:
+        - Message
+      summary: receive
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}

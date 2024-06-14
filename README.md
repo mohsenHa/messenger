@@ -45,6 +45,10 @@ Note: The `SERVICE_NAME` is configured in `.env` file.
 Now you can test APIs with postman or use sample golang client. 
 For run client run this command.
 
+[Postman collection](document%2FMessenger.postman_collection.json)
+
+[Swagger](document%2FMessenger.openapi.yml)
+
 Windows:
 ```shell
 .\serve\docker-compose.bat exec app go run ./cmd/client/ ARG1 ARG2

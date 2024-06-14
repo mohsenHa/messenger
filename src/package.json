@@ -1,0 +1,9 @@
+{
+    "private": true,
+    "scripts": {
+        "convert-postman": "p2o ../document/Messenger.postman_collection.json -f ../document/Messenger.openapi.yml"
+    },
+    "devDependencies": {
+        "postman-to-openapi": "^3.0.1"
+    }
+}
