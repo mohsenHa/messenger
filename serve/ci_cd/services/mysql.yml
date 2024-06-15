@@ -1,0 +1,11 @@
+services:
+  #Mysql Service
+  db:
+    image: mysql:5.7.22
+    restart: unless-stopped
+    tty: true
+    environment:
+      MYSQL_DATABASE: app_db
+      MYSQL_ROOT_PASSWORD: password
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
