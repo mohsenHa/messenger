@@ -20,13 +20,13 @@ jobs:
         run: cd src && go mod tidy
 
       - name: dockerUp
-        run: sudo docker-compose up -d
+        run: sudo ./serve/ci_cd/docker-compose.bash up -d
 
       - name: Test
         run: make test
 
       - name: dockerDown
-        run: sudo docker-compose down
+        run: sudo ./serve/ci_cd/docker-compose.bash down
 
       - name: Format
         run: make format
