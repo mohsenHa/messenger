@@ -26,6 +26,9 @@ format:
 
 build:
 	echo "Building stage"
+	echo ${GOLANG_VERSION}
 
 deploy:
 	echo "Deploy stage"
+	echo ${GOLANG_VERSION}
+
