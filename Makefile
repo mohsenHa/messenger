@@ -6,6 +6,7 @@ lint:
 
 test:
 	cd $(ROOT)
+	ls -ll
 	go test ./...
 
 format:
