@@ -5,9 +5,7 @@ lint:
 	golangci-lint run --config=$(ROOT)/.golangci.yml $(ROOT)/...
 
 test:
-	cd $(ROOT)
-	ls -ll
-	go test ./...
+	cd $(ROOT) && go test ./...
 
 format:
 	cd $(ROOT)
