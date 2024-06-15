@@ -8,31 +8,20 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  cd:
     runs-on: ubuntu-latest
+    needs:
+      - ci
+      - pr-lint
     steps:
       - uses: actions/checkout@v4
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
           go-version: $GOLANG_VERSION
+
       - name: Install dependencies
         run: go mod tidy
-
-      - name: dockerUp
-        run: sudo docker-compose up -d
-
-      - name: Test
-        run: make test
-
-      - name: dockerDown
-        run: sudo docker-compose down
-
-      - name: Format
-        run: make format
-
-      - name: Lint
-        run: make lint
 
       - name: build
         run: make build
