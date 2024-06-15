@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: $GOLANG_VERSION
+      - name: Install dependencies
+        run: go mod tidy
+
+      - name: dockerUp
+        run: sudo docker-compose up -d
+
+      - name: Test
+        run: make test
+
+      - name: dockerDown
+        run: sudo docker-compose down
+
+      - name: Format
+        run: make format
+
+      - name: Lint
+        run: make lint
+
+      - name: build
+        run: make build
+
+      - name: deploy
+        run: make deploy
+      
