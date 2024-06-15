@@ -1,8 +1,15 @@
 services:
+  #Rabbitmq Service
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - 5672:5672
+
   #Mysql Service
   db:
     image: mysql:5.7.22
-    restart: unless-stopped
+    ports:
+      - 3306:3306
     tty: true
     environment:
       MYSQL_DATABASE: app_db
