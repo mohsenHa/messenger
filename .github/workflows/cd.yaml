@@ -18,10 +18,10 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: $GOLANG_VERSION
+          go-version: 1.22
 
       - name: Install dependencies
-        run: go mod tidy
+        run: cd src && go mod tidy
 
       - name: build
         run: make build
