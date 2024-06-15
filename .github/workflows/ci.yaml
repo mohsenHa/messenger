@@ -15,7 +15,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: $GOLANG_VERSION
+          go-version: "$GOLANG_VERSION"
       - name: Install dependencies
         run: go mod tidy
 
