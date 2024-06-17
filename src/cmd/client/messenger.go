@@ -19,6 +19,7 @@ func Messenger(user User) {
 		}
 		if to == "id" {
 			fmt.Printf("Your ID is %s \n", user.ID)
+
 			continue
 		}
 		publicKey, err := GetPublicKey(GetPublicKeyRequest{
@@ -27,6 +28,7 @@ func Messenger(user User) {
 		})
 		if err != nil {
 			fmt.Println(err)
+
 			continue
 		}
 		fmt.Printf("You send message to %s for end chat enter exit \n", to)
@@ -35,7 +37,7 @@ func Messenger(user User) {
 	}
 }
 
-func startSendMessage(publicKey string, to string, token string) {
+func startSendMessage(publicKey, to, token string) {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		message := scanner.Text()
@@ -46,6 +48,7 @@ func startSendMessage(publicKey string, to string, token string) {
 		encryptedMessage, err := encryptdecrypt.Encrypt(publicKey, message)
 		if err != nil {
 			fmt.Println(err)
+
 			continue
 		}
 		send, err := Send(SendRequest{
@@ -55,6 +58,7 @@ func startSendMessage(publicKey string, to string, token string) {
 		})
 		if err != nil {
 			fmt.Println(err)
+
 			continue
 		}
 		fmt.Printf("Message sent with id %s\n", send.ID)

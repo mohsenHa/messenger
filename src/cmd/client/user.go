@@ -40,7 +40,7 @@ type User struct {
 	UserFile      string          `json:"-"`
 }
 
-const ContentTypeApplicationJson = "application/json"
+const ContentTypeApplicationJSON = "application/json"
 
 func New(userFile string) (User, error) {
 	keySize := 512
@@ -58,14 +58,14 @@ func New(userFile string) (User, error) {
 	pub := privateKey.Public()
 
 	// Encode public key to PKCS#1 ASN.1 PEM.
-	bytes, err := x509.MarshalPKIXPublicKey(pub.(*rsa.PublicKey))
+	byt, err := x509.MarshalPKIXPublicKey(pub.(*rsa.PublicKey))
 	if err != nil {
 		return User{}, err
 	}
 	pubPEM := pem.EncodeToMemory(
 		&pem.Block{
 			Type:  "RSA PUBLIC KEY",
-			Bytes: bytes,
+			Bytes: byt,
 		},
 	)
 	publicKeyBase64 := base64.StdEncoding.EncodeToString(pubPEM)
@@ -162,6 +162,7 @@ func (u *User) GetPrivateKey() (*rsa.PrivateKey, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return privateKey, nil
 }
 
@@ -174,6 +175,7 @@ func (u *User) Decrypt(encryptedByte []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return decryptedBytes, nil
 }
 func (u *User) Check() (bool, error) {
@@ -182,23 +184,21 @@ func (u *User) Check() (bool, error) {
 		return false, err
 	}
 	request.Header.Set("Authorization", "Bearer "+u.Token)
-	request.Header.Set("Content-Type", ContentTypeApplicationJson)
+	request.Header.Set("Content-Type", ContentTypeApplicationJSON)
 
 	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
 		return false, err
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			fmt.Println(err)
-		}
-	}(resp.Body)
-
+	err = resp.Body.Close()
+	if err != nil {
+		fmt.Println(err)
+	}
 	if resp.StatusCode == http.StatusUnauthorized {
 		return false, nil
 	}
+
 	if resp.StatusCode == http.StatusOK {
 		return true, nil
 	}
@@ -212,16 +212,10 @@ func (u *User) Login() error {
 		return err
 	}
 
-	resp, err := http.Post(targetHost.path("user/login"), ContentTypeApplicationJson, bytes.NewBuffer(b))
+	resp, err := http.Post(targetHost.path("user/login"), ContentTypeApplicationJSON, bytes.NewBuffer(b))
 	if err != nil {
 		return err
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			fmt.Println(err)
-		}
-	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
@@ -235,6 +229,10 @@ func (u *User) Login() error {
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		return err
+	}
+	err = resp.Body.Close()
+	if err != nil {
+		fmt.Println(err)
 	}
 	response.EncryptedCodeByte, err = base64.RawStdEncoding.DecodeString(response.EncryptedCode)
 	if err != nil {
@@ -261,16 +259,10 @@ func (u *User) verify(code string) error {
 		return err
 	}
 
-	resp, err := http.Post(targetHost.path("user/verify"), ContentTypeApplicationJson, bytes.NewBuffer(b))
+	resp, err := http.Post(targetHost.path("user/verify"), ContentTypeApplicationJSON, bytes.NewBuffer(b))
 	if err != nil {
 		return err
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			fmt.Println(err)
-		}
-	}(resp.Body)
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("somthing failed: %+v", resp)
 	}
@@ -278,6 +270,10 @@ func (u *User) verify(code string) error {
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
+	}
+	err = resp.Body.Close()
+	if err != nil {
+		fmt.Println(err)
 	}
 	rV := VerifyResponse{}
 	err = json.Unmarshal(body, &rV)

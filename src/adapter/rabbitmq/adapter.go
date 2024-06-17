@@ -149,7 +149,7 @@ func (ca *ChannelAdapter) NewChannel(name string) error {
 	return nil
 }
 
-func (ca *ChannelAdapter) CloseIdleChannel(name string, closeSignalChannel chan bool, noOutputConsumer chan bool, heartBeatSignalChannel <-chan bool) {
+func (ca *ChannelAdapter) CloseIdleChannel(name string, closeSignalChannel, noOutputConsumer chan bool, heartBeatSignalChannel <-chan bool) {
 	ca.wg.Add(1)
 	go func() {
 		defer ca.wg.Done()

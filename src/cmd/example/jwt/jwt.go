@@ -14,7 +14,7 @@ func main() {
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * ttl)),
 		},
-		Id: "1234",
+		ID: "1234",
 	}
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)
 	keyDataPrivate, err := os.ReadFile("./key/key")

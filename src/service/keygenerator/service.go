@@ -31,7 +31,6 @@ func (s Service) CreateCode() (string, error) {
 }
 
 func (s Service) EncryptCode(code, publicKey string) (string, error) {
-
 	return encryptdecrypt.Encrypt(publicKey, code)
 }
 

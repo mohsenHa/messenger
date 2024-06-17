@@ -18,8 +18,8 @@ func Receive(wg *sync.WaitGroup, done <-chan bool, user User) {
 	if err != nil {
 		panic(err)
 	}
-
-	messageChannel := make(chan messageparam.SendMessage, 100)
+	bufferSize := 100
+	messageChannel := make(chan messageparam.SendMessage, bufferSize)
 	closedChannel := make(chan bool)
 	go startListen(c, messageChannel, closedChannel)
 	wg.Add(1)
@@ -39,17 +39,21 @@ func Receive(wg *sync.WaitGroup, done <-chan bool, user User) {
 				fmt.Println("End listening")
 				time.Sleep(time.Second)
 				go Receive(wg, done, user)
+
 				return
 			case <-done:
 				fmt.Println("End listening")
+
 				return
 			case msg := <-messageChannel:
 				switch msg.Type {
 				case messageparam.SendMessageDeliverType:
 					deliverReceived(msg)
+
 					break
 				case messageparam.SendMessageMessageType:
 					messageReceived(msg, user)
+
 					break
 				default:
 					fmt.Printf("Message recived with invalid type %v", msg)
@@ -68,11 +72,13 @@ func messageReceived(msg messageparam.SendMessage, user User) {
 	decodeString, err := base64.RawStdEncoding.DecodeString(msg.Body)
 	if err != nil {
 		fmt.Println("error on decode message", err)
+
 		return
 	}
 	decryptedBytes, err := rsa.DecryptPKCS1v15(nil, user.PrivateKeyRSA, decodeString)
 	if err != nil {
 		fmt.Println("error on decrypt message", err)
+
 		return
 	}
 	fmt.Printf("Message From: %v\t%v\n", msg.From.ID, msg.SendTime.Format("2006-01-02 15:04:05"))
@@ -85,12 +91,14 @@ func startListen(c *websocket.Conn, messageChannel chan<- messageparam.SendMessa
 		if err != nil {
 			log.Println("read:", err)
 			close(closedChannel)
+
 			return
 		}
 		m := messageparam.SendMessage{}
 		err = json.Unmarshal(message, &m)
 		if err != nil {
 			log.Println(err, message)
+
 			continue
 		}
 		messageChannel <- m

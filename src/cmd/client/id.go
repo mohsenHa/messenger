@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/mohsenHa/messenger/logger"
 	"io"
 	"net/http"
 )
@@ -33,15 +34,13 @@ func GetPublicKey(req GetPublicKeyRequest) (GetPublicKeyResponse, error) {
 	if err != nil {
 		return GetPublicKeyResponse{}, err
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			fmt.Println(err)
-		}
-	}(resp.Body)
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return GetPublicKeyResponse{}, err
+	}
+	err = resp.Body.Close()
+	if err != nil {
+		logger.NewLog("error on closing response body")
 	}
 	if resp.StatusCode != http.StatusOK {
 		return GetPublicKeyResponse{}, fmt.Errorf("error: %v", string(body))

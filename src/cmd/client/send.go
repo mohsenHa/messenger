@@ -2,11 +2,13 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/mohsenHa/messenger/param/messageparam"
 	"io"
 	"net/http"
+	"time"
 )
 
 type SendRequest struct {
@@ -23,7 +25,10 @@ func Send(req SendRequest) (messageparam.SendMessage, error) {
 	if err != nil {
 		return messageparam.SendMessage{}, err
 	}
-	request, err := http.NewRequest(http.MethodPost, targetHost.path("message/send"), bytes.NewBuffer(b))
+	timeout := 5
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(timeout))
+	defer cancel()
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, targetHost.path("message/send"), bytes.NewBuffer(b))
 	if err != nil {
 		return messageparam.SendMessage{}, err
 	}
@@ -35,16 +40,15 @@ func Send(req SendRequest) (messageparam.SendMessage, error) {
 	if err != nil {
 		return messageparam.SendMessage{}, err
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			fmt.Println(err)
-		}
-	}(resp.Body)
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return messageparam.SendMessage{}, err
 	}
+	err = resp.Body.Close()
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		return messageparam.SendMessage{}, fmt.Errorf("error: %v", string(body))
 	}
