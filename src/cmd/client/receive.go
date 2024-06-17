@@ -60,7 +60,7 @@ func Receive(wg *sync.WaitGroup, done <-chan bool, user User) {
 }
 
 func deliverReceived(msg messageparam.SendMessage) {
-	fmt.Printf("Message %s delivered to: %v\t%v\n", msg.Id, msg.From.Id,
+	fmt.Printf("Message %s delivered to: %v\t%v\n", msg.ID, msg.From.ID,
 		msg.SendTime.Format("2006-01-02 15:04:05"))
 }
 
@@ -75,7 +75,7 @@ func messageReceived(msg messageparam.SendMessage, user User) {
 		fmt.Println("error on decrypt message", err)
 		return
 	}
-	fmt.Printf("Message From: %v\t%v\n", msg.From.Id, msg.SendTime.Format("2006-01-02 15:04:05"))
+	fmt.Printf("Message From: %v\t%v\n", msg.From.ID, msg.SendTime.Format("2006-01-02 15:04:05"))
 	fmt.Printf("Message: %s\n", decryptedBytes)
 }
 

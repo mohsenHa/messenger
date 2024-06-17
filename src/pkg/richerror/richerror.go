@@ -1,5 +1,7 @@
 package richerror
 
+import "errors"
+
 type Kind int
 
 const (
@@ -25,26 +27,31 @@ func New(op Op) RichError {
 
 func (r RichError) WithOp(op Op) RichError {
 	r.operation = op
+
 	return r
 }
 
 func (r RichError) WithErr(err error) RichError {
 	r.wrappedError = err
+
 	return r
 }
 
 func (r RichError) WithMessage(message string) RichError {
 	r.message = message
+
 	return r
 }
 
 func (r RichError) WithKind(kind Kind) RichError {
 	r.kind = kind
+
 	return r
 }
 
 func (r RichError) WithMeta(meta map[string]interface{}) RichError {
 	r.meta = meta
+
 	return r
 }
 
@@ -60,8 +67,8 @@ func (r RichError) Kind() Kind {
 	if r.kind != 0 {
 		return r.kind
 	}
-
-	re, ok := r.wrappedError.(RichError)
+	re := RichError{}
+	ok := errors.As(r.wrappedError, &re)
 	if !ok {
 		return 0
 	}
@@ -74,7 +81,8 @@ func (r RichError) Message() string {
 		return r.message
 	}
 
-	re, ok := r.wrappedError.(RichError)
+	re := RichError{}
+	ok := errors.As(r.wrappedError, &re)
 	if ok {
 		return re.Message()
 	}

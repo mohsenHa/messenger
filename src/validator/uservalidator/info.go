@@ -1,6 +1,7 @@
 package uservalidator
 
 import (
+	"errors"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/mohsenHa/messenger/param/userparam"
 	"github.com/mohsenHa/messenger/pkg/errmsg"
@@ -13,7 +14,8 @@ func (v Validator) ValidateInfoRequest(req userparam.InfoRequest) (map[string]st
 	if err := validation.ValidateStruct(&req); err != nil {
 		fieldErrors := make(map[string]string)
 
-		errV, ok := err.(validation.Errors)
+		errV := validation.Errors{}
+		ok := errors.As(err, &err)
 		if ok {
 			for key, value := range errV {
 				if value != nil {
@@ -27,5 +29,5 @@ func (v Validator) ValidateInfoRequest(req userparam.InfoRequest) (map[string]st
 			WithMeta(map[string]interface{}{"req": req}).WithErr(err)
 	}
 
-	return nil, nil
+	return map[string]string{}, nil
 }

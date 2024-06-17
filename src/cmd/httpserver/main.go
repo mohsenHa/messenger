@@ -35,6 +35,7 @@ func main() {
 	_ = logger.NewLogger(cfg.Logger)
 
 	mgr := mysqlmigrator.New(cfg.Mysql)
+	mgr.Down()
 	mgr.Up()
 
 	rSvcs, rVal := setupServices(cfg, wg, done)

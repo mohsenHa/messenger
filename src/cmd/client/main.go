@@ -35,7 +35,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Your Id is %s\n", user.Id)
+	fmt.Printf("Your ID is %s\n", user.ID)
 
 	Receive(wg, done, user)
 	Messenger(user)

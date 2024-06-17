@@ -12,12 +12,12 @@ type Service struct {
 }
 
 type UserRepo interface {
-	GetUserById(ctx context.Context, id string) (entity.User, error)
+	GetUserByID(ctx context.Context, id string) (entity.User, error)
 }
 
-func New(rabbitmq *rabbitmq.ChannelAdapter, userRepo UserRepo) Service {
+func New(rmq *rabbitmq.ChannelAdapter, userRepo UserRepo) Service {
 	return Service{
-		rabbitmq: rabbitmq,
+		rabbitmq: rmq,
 		userRepo: userRepo,
 	}
 }

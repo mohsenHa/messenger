@@ -40,6 +40,7 @@ func (rc *rabbitmqChannel) addOutputChannel(outputChanel *OutputChannel) int {
 	index := len(rc.outputChannels)
 	rc.outputChannels = append(rc.outputChannels, outputChanel)
 	rc.outputChannelMutex.Unlock()
+
 	return index
 }
 
@@ -54,14 +55,17 @@ func (rc *rabbitmqChannel) WaitForCloseOutputChannel(outputChanel *OutputChannel
 		case <-outputChanel.outputChannelCloseSignal:
 			logger.L().Debugf(channelDeleted)
 			rc.deleteOutputChannel(index)
+
 			return
 		case <-outputChanel.internalCloseChannel:
 			logger.L().Debugf(channelDeleted)
 			rc.deleteOutputChannel(index)
+
 			return
 		case <-rc.rabbitMQCloseSignal:
 			logger.L().Debugf(channelDeleted)
 			rc.deleteOutputChannel(index)
+
 			return
 		}
 	}()
@@ -77,7 +81,6 @@ func (rc *rabbitmqChannel) startOutput() {
 	go func() {
 		defer rc.wg.Done()
 		ch, err := rc.rabbitmq.connection.Channel()
-
 		if err != nil {
 			logger.NewLog("Failed to open a channel").
 				WithCategory(loggerentity.CategoryRabbitMQ).
@@ -98,7 +101,6 @@ func (rc *rabbitmqChannel) startOutput() {
 					With(loggerentity.ExtraKeyErrorMessage, err.Error()).
 					Error()
 			}
-
 		}(ch)
 
 		msgs, err := ch.Consume(
@@ -140,6 +142,7 @@ func (rc *rabbitmqChannel) startOutput() {
 				for _, c := range rc.outputChannels {
 					close(c.internalCloseChannel)
 				}
+
 				return
 			case msg := <-msgs:
 				rc.receivedMessage(msg)
@@ -159,6 +162,7 @@ func (rc *rabbitmqChannel) receivedMessage(msg amqp.Delivery) {
 			Body: msg.Body,
 			Ack: func() error {
 				ackChan <- true
+
 				return nil
 			},
 		}
@@ -170,14 +174,14 @@ func (rc *rabbitmqChannel) receivedMessage(msg amqp.Delivery) {
 		rc.processSubAck(ackChan, ackCount, msg)
 		rc.sendHeartBeatSignal()
 	}()
-
 }
 
 func (rc *rabbitmqChannel) processSubAck(ackChan <-chan bool, ackCount int, msg amqp.Delivery) {
 	rc.wg.Add(1)
+	ttl := 5
 	go func() {
 		defer rc.wg.Done()
-		askTimeout := time.After(time.Second * 5)
+		askTimeout := time.After(time.Second * time.Duration(ttl))
 		for {
 			select {
 			case <-ackChan:
@@ -187,6 +191,7 @@ func (rc *rabbitmqChannel) processSubAck(ackChan <-chan bool, ackCount int, msg 
 					WithCategory(loggerentity.CategoryRabbitMQ).
 					WithSubCategory(loggerentity.SubCategoryRabbitMQChannel).
 					Debug()
+
 				return
 			default:
 				time.Sleep(time.Second)
@@ -200,6 +205,7 @@ func (rc *rabbitmqChannel) processSubAck(ackChan <-chan bool, ackCount int, msg 
 				if err != nil {
 					fmt.Println("error in ack", err)
 				}
+
 				return
 			}
 		}

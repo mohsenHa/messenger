@@ -2,11 +2,11 @@ package userparam
 
 import "context"
 
-type IdRequest struct {
+type IDRequest struct {
 	Ctx       context.Context
 	PublicKey string `json:"public_key"`
 }
 
-type IdResponse struct {
-	Id string `json:"id"`
+type IDResponse struct {
+	ID string `json:"id"`
 }

@@ -9,10 +9,10 @@ import (
 )
 
 func main() {
-
+	ttl := time.Duration(10)
 	claims := authservice.Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 10)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * ttl)),
 		},
 		Id: "1234",
 	}
@@ -31,7 +31,7 @@ func main() {
 	}
 	fmt.Println(tokenString)
 
-	token, err := jwt.ParseWithClaims(tokenString, &authservice.Claims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &authservice.Claims{}, func(_ *jwt.Token) (interface{}, error) {
 		keyData, err := os.ReadFile("./key/key.pub")
 		if err != nil {
 			panic(err)
@@ -40,6 +40,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+
 		return key, nil
 	})
 	if err != nil {

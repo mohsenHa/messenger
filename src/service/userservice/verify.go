@@ -11,7 +11,7 @@ func (s Service) Verify(req userparam.VerifyRequest) (userparam.VerifyResponse, 
 	code := req.Code
 
 	unexpectedError := "unexpected error: %w"
-	u, err := s.repo.GetUserById(req.Ctx, req.Id)
+	u, err := s.repo.GetUserByID(req.Ctx, req.ID)
 	if err != nil {
 		return userparam.VerifyResponse{}, fmt.Errorf(unexpectedError, err)
 	}
@@ -20,7 +20,7 @@ func (s Service) Verify(req userparam.VerifyRequest) (userparam.VerifyResponse, 
 		return userparam.VerifyResponse{}, fmt.Errorf(errmsg.ErrorMsgInvalidCode)
 	}
 	if u.Status != 1 {
-		err = s.repo.Activate(req.Ctx, req.Id)
+		err = s.repo.Activate(req.Ctx, req.ID)
 		if err != nil {
 			return userparam.VerifyResponse{}, fmt.Errorf(unexpectedError, err)
 		}
@@ -36,7 +36,7 @@ func (s Service) Verify(req userparam.VerifyRequest) (userparam.VerifyResponse, 
 	}
 
 	return userparam.VerifyResponse{
-		Id:    u.Id,
+		ID:    u.ID,
 		Token: token,
 	}, nil
 }

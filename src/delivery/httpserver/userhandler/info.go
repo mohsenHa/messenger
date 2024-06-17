@@ -23,7 +23,7 @@ func (h Handler) info(c echo.Context) error {
 	}
 	req.Ctx = c.Request().Context()
 
-	req.UserId = c.Get(config.AuthMiddlewareContextKey).(*authservice.Claims).Id
+	req.UserID = c.Get(config.AuthMiddlewareContextKey).(*authservice.Claims).ID
 
 	resp, err := h.userSvc.Info(req)
 	if err != nil {

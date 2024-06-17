@@ -45,6 +45,7 @@ type Config struct {
 func NewZapLogger(cfg Config) *ZapLogger {
 	logger := &ZapLogger{config: cfg}
 	logger.Init()
+
 	return logger
 }
 
@@ -53,13 +54,12 @@ func (zl *ZapLogger) getLogLevel() zapcore.Level {
 	if !exists {
 		level = zapcore.DebugLevel
 	}
+
 	return level
 }
 
 func (zl *ZapLogger) Init() {
 	once.Do(func() {
-		logger, _ := zap.NewProduction()
-
 		config := zap.NewProductionEncoderConfig()
 		config.EncodeTime = zapcore.ISO8601TimeEncoder
 		defaultEncoder := zapcore.NewJSONEncoder(config)
@@ -76,14 +76,12 @@ func (zl *ZapLogger) Init() {
 			zapcore.NewCore(defaultEncoder, writer, zl.getLogLevel()),
 			zapcore.NewCore(defaultEncoder, stdOutWriter, zl.getLogLevel()),
 		)
-		logger = zap.New(core, zap.AddStacktrace(zapcore.ErrorLevel))
+		logger := zap.New(core, zap.AddStacktrace(zapcore.ErrorLevel))
 		zl.logger = logger
 	})
 }
 
-func (zl *ZapLogger) Debug(cat loggerentity.Category, sub loggerentity.SubCategory, msg string,
-	extra map[loggerentity.ExtraKey]interface{}) {
-
+func (zl *ZapLogger) Debug(cat loggerentity.Category, sub loggerentity.SubCategory, msg string, extra map[loggerentity.ExtraKey]interface{}) {
 	params := prepareLogInfo(cat, sub, extra)
 	zl.logger.Debug(msg, params...)
 }
@@ -92,9 +90,7 @@ func (zl *ZapLogger) Debugf(template string, args ...interface{}) {
 	zl.logger.Debug(fmt.Sprintf(template, args...), zap.Any("trace", trace.Parse(runtimeCallerSkip)))
 }
 
-func (zl *ZapLogger) Info(cat loggerentity.Category, sub loggerentity.SubCategory, msg string,
-	extra map[loggerentity.ExtraKey]interface{}) {
-
+func (zl *ZapLogger) Info(cat loggerentity.Category, sub loggerentity.SubCategory, msg string, extra map[loggerentity.ExtraKey]interface{}) {
 	params := prepareLogInfo(cat, sub, extra)
 	zl.logger.Info(msg, params...)
 }
@@ -103,9 +99,7 @@ func (zl *ZapLogger) Infof(template string, args ...interface{}) {
 	zl.logger.Info(fmt.Sprintf(template, args...), zap.Any("trace", trace.Parse(runtimeCallerSkip)))
 }
 
-func (zl *ZapLogger) Warn(cat loggerentity.Category, sub loggerentity.SubCategory, msg string,
-	extra map[loggerentity.ExtraKey]interface{}) {
-
+func (zl *ZapLogger) Warn(cat loggerentity.Category, sub loggerentity.SubCategory, msg string, extra map[loggerentity.ExtraKey]interface{}) {
 	params := prepareLogInfo(cat, sub, extra)
 	zl.logger.Warn(msg, params...)
 }
@@ -114,9 +108,7 @@ func (zl *ZapLogger) Warnf(template string, args ...interface{}) {
 	zl.logger.Warn(fmt.Sprintf(template, args...), zap.Any("trace", trace.Parse(runtimeCallerSkip)))
 }
 
-func (zl *ZapLogger) Error(cat loggerentity.Category, sub loggerentity.SubCategory, msg string,
-	extra map[loggerentity.ExtraKey]interface{}) {
-
+func (zl *ZapLogger) Error(cat loggerentity.Category, sub loggerentity.SubCategory, msg string, extra map[loggerentity.ExtraKey]interface{}) {
 	params := prepareLogInfo(cat, sub, extra)
 	zl.logger.Error(msg, params...)
 }
@@ -125,9 +117,7 @@ func (zl *ZapLogger) Errorf(template string, args ...interface{}) {
 	zl.logger.Error(fmt.Sprintf(template, args...))
 }
 
-func (zl *ZapLogger) Fatal(cat loggerentity.Category, sub loggerentity.SubCategory, msg string,
-	extra map[loggerentity.ExtraKey]interface{}) {
-
+func (zl *ZapLogger) Fatal(cat loggerentity.Category, sub loggerentity.SubCategory, msg string, extra map[loggerentity.ExtraKey]interface{}) {
 	params := prepareLogInfo(cat, sub, extra)
 	zl.logger.Fatal(msg, params...)
 }
@@ -136,9 +126,7 @@ func (zl *ZapLogger) Fatalf(template string, args ...interface{}) {
 	zl.logger.Fatal(fmt.Sprintf(template, args...))
 }
 
-func prepareLogInfo(cat loggerentity.Category, sub loggerentity.SubCategory,
-	extra map[loggerentity.ExtraKey]interface{}) []zap.Field {
-
+func prepareLogInfo(cat loggerentity.Category, sub loggerentity.SubCategory, extra map[loggerentity.ExtraKey]interface{}) []zap.Field {
 	if extra == nil {
 		extra = make(map[loggerentity.ExtraKey]interface{})
 	}

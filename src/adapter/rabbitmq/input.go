@@ -26,6 +26,7 @@ func (rc *rabbitmqChannel) startInput() {
 				WithSubCategory(loggerentity.SubCategoryRabbitMQChannel).
 				With(loggerentity.ExtraKeyErrorMessage, err.Error()).
 				Error()
+
 			return
 		}
 		defer func(ch *amqp.Channel) {
@@ -54,6 +55,7 @@ func (rc *rabbitmqChannel) startInput() {
 					WithCategory(loggerentity.CategoryRabbitMQ).
 					WithSubCategory(loggerentity.SubCategoryRabbitMQChannel).
 					Debug()
+
 				return
 
 			case msg := <-rc.inputChannel:

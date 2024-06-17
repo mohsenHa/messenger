@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -12,21 +13,27 @@ import (
 )
 
 func producer(remoteAddr string, channel chan string) {
+	sleep := 5
 	for {
 		channel <- remoteAddr
-		time.Sleep(5 * time.Second)
+		time.Sleep(time.Duration(sleep) * time.Second)
 	}
 }
 
 func main() {
-	http.ListenAndServe(":8040", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	err := http.ListenAndServe(":8040", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		conn, _, _, err := ws.UpgradeHTTP(r, w)
 		if err != nil {
 			// handle error
 			panic(err)
 		}
 
-		defer conn.Close()
+		defer func(conn net.Conn) {
+			err = conn.Close()
+			if err != nil {
+				fmt.Println(err)
+			}
+		}(conn)
 
 		done := make(chan bool)
 		go readMessage(conn, done)
@@ -37,15 +44,19 @@ func main() {
 
 		<-done
 	}))
+	if err != nil {
+		panic(err)
+	}
 }
 
-func readMessage(conn net.Conn, done chan<- bool) {
+func readMessage(conn io.ReadWriter, done chan<- bool) {
 	for {
 		msg, opCode, err := wsutil.ReadClientData(conn)
 		if err != nil {
 
 			log.Print(err)
 			done <- true
+
 			return
 		}
 
@@ -55,7 +66,7 @@ func readMessage(conn net.Conn, done chan<- bool) {
 	}
 }
 
-func writeMessage(conn net.Conn, channel <-chan string) {
+func writeMessage(conn io.Writer, channel <-chan string) {
 	for data := range channel {
 		err := wsutil.WriteServerMessage(conn, ws.OpText, []byte(data))
 		if err != nil {

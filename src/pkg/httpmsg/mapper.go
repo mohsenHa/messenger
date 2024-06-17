@@ -1,6 +1,7 @@
 package httpmsg
 
 import (
+	"errors"
 	"github.com/mohsenHa/messenger/logger"
 	"github.com/mohsenHa/messenger/logger/loggerentity"
 	"github.com/mohsenHa/messenger/pkg/errmsg"
@@ -9,15 +10,18 @@ import (
 )
 
 func Error(err error) (message string, code int) {
-	switch err.(type) {
-	case richerror.RichError:
-		re := err.(richerror.RichError)
+	re := richerror.RichError{}
+	ok := errors.As(err, &re)
+	if ok {
+		if !ok {
+			return err.Error(), http.StatusBadRequest
+		}
 		msg := re.Message()
 
-		code := mapKindToHTTPStatusCode(re.Kind())
+		code = mapKindToHTTPStatusCode(re.Kind())
 
 		// we should not expose unexpected error messages
-		if code >= 500 {
+		if code >= http.StatusInternalServerError {
 			logger.NewLog(msg).
 				WithCategory(loggerentity.CategoryRequestResponse).
 				WithSubCategory(loggerentity.SubCategoryInternalResponse).
@@ -27,9 +31,9 @@ func Error(err error) (message string, code int) {
 		}
 
 		return msg, code
-	default:
-		return err.Error(), http.StatusBadRequest
 	}
+
+	return err.Error(), http.StatusBadRequest
 }
 
 func mapKindToHTTPStatusCode(kind richerror.Kind) int {

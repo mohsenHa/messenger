@@ -24,11 +24,11 @@ func (h Handler) sendMessage(c echo.Context) error {
 	}
 	req.Ctx = c.Request().Context()
 
-	req.FromId = c.Get(config.AuthMiddlewareContextKey).(*authservice.Claims).Id
+	req.FromID = c.Get(config.AuthMiddlewareContextKey).(*authservice.Claims).ID
 
-	if req.FromId == req.ToId {
+	if req.FromID == req.ToID {
 		msg, code := httpmsg.Error(fmt.Errorf("sender and receiver cannot be the same %s and %s",
-			req.FromId, req.ToId))
+			req.FromID, req.ToID))
 		return c.JSON(code, echo.Map{
 			"message": msg,
 		})

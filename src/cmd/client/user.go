@@ -15,7 +15,7 @@ import (
 )
 
 type LoginRequest struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 }
 type LoginResponse struct {
 	EncryptedCode     string `json:"encrypted_code"`
@@ -23,16 +23,16 @@ type LoginResponse struct {
 }
 
 type VerifyRequest struct {
-	Id   string `json:"id"`
+	ID   string `json:"id"`
 	Code string `json:"code"`
 }
 type VerifyResponse struct {
-	Id    string `json:"id"`
+	ID    string `json:"id"`
 	Token string `json:"token"`
 }
 
 type User struct {
-	Id            string          `json:"id"`
+	ID            string          `json:"id"`
 	Token         string          `json:"token"`
 	PublicKey     string          `json:"public_key"`
 	PrivateKey    string          `json:"private_key"`
@@ -84,7 +84,7 @@ func New(userFile string) (User, error) {
 		return User{}, err
 	}
 	user := User{
-		Id:            rR.Id,
+		ID:            rR.ID,
 		Token:         "",
 		PublicKey:     publicKeyBase64,
 		PrivateKey:    privateKeyBase64,
@@ -207,7 +207,7 @@ func (u *User) Check() (bool, error) {
 }
 
 func (u *User) Login() error {
-	b, err := json.Marshal(LoginRequest{Id: u.Id})
+	b, err := json.Marshal(LoginRequest{ID: u.ID})
 	if err != nil {
 		return err
 	}
@@ -254,7 +254,7 @@ func (u *User) Login() error {
 
 func (u *User) verify(code string) error {
 	b, err := json.Marshal(VerifyRequest{
-		Id:   u.Id,
+		ID:   u.ID,
 		Code: code,
 	})
 	if err != nil {

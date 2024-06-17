@@ -3,6 +3,7 @@ package mysqluser
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/mohsenHa/messenger/entity"
 	"github.com/mohsenHa/messenger/pkg/errmsg"
@@ -14,7 +15,7 @@ func (d *DB) Register(ctx context.Context, u entity.User) (entity.User, error) {
 	const op = "mysql.Register"
 
 	_, err := d.conn.Conn().ExecContext(ctx, `insert into users(id,public_key,code,status) values(?,?,?,?)`,
-		u.Id, u.PublicKey, u.Code, u.Status)
+		u.ID, u.PublicKey, u.Code, u.Status)
 	if err != nil {
 		fmt.Println(err)
 		return entity.User{}, richerror.New(op).WithErr(err).
@@ -24,14 +25,14 @@ func (d *DB) Register(ctx context.Context, u entity.User) (entity.User, error) {
 	return u, nil
 }
 
-func (d *DB) GetUserById(ctx context.Context, id string) (entity.User, error) {
+func (d *DB) GetUserByID(ctx context.Context, id string) (entity.User, error) {
 	const op = "mysql.GetUserByPublicKey"
 
 	row := d.conn.Conn().QueryRowContext(ctx, `select * from users where id = ?`, id)
 
 	user, err := scanUser(row)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return entity.User{}, richerror.New(op).WithErr(err).
 				WithMessage(errmsg.ErrorMsgNotFound).WithKind(richerror.KindNotFound)
 		}
@@ -69,14 +70,14 @@ func (d *DB) Activate(ctx context.Context, id string) error {
 	return nil
 }
 
-func (d *DB) IsIdUnique(id string) (bool, error) {
+func (d *DB) IsIDUnique(id string) (bool, error) {
 	const op = "mysql.IsPhoneNumberUnique"
 
 	row := d.conn.Conn().QueryRow(`select * from users where id = ?`, id)
 
 	_, err := scanUser(row)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return true, nil
 		}
 
@@ -87,14 +88,15 @@ func (d *DB) IsIdUnique(id string) (bool, error) {
 	return false, nil
 }
 
-func (d *DB) IsIdExist(id string) (bool, error) {
-	unique, err := d.IsIdUnique(id)
+func (d *DB) IsIDExist(id string) (bool, error) {
+	unique, err := d.IsIDUnique(id)
+
 	return !unique, err
 }
 
 func scanUser(scanner mysql.Scanner) (entity.User, error) {
 	var user entity.User
-	err := scanner.Scan(&user.Id, &user.PublicKey, &user.Code, &user.Status)
+	err := scanner.Scan(&user.ID, &user.PublicKey, &user.Code, &user.Status)
 
 	return user, err
 }

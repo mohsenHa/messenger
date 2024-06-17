@@ -1,14 +1,16 @@
 package uservalidator
 
 import (
+	"errors"
+	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/mohsenHa/messenger/param/userparam"
 	"github.com/mohsenHa/messenger/pkg/errmsg"
 	"github.com/mohsenHa/messenger/pkg/richerror"
 )
 
-func (v Validator) ValidateIdRequest(req userparam.IdRequest) (map[string]string, error) {
-	const op = "uservalidator.ValidateIdRequest"
+func (v Validator) ValidateIDRequest(req userparam.IDRequest) (map[string]string, error) {
+	const op = "uservalidator.ValidateIDRequest"
 
 	if err := validation.ValidateStruct(&req,
 
@@ -18,7 +20,8 @@ func (v Validator) ValidateIdRequest(req userparam.IdRequest) (map[string]string
 	); err != nil {
 		fieldErrors := make(map[string]string)
 
-		errV, ok := err.(validation.Errors)
+		errV := validation.Errors{}
+		ok := errors.As(err, &err)
 		if ok {
 			for key, value := range errV {
 				if value != nil {
@@ -32,12 +35,15 @@ func (v Validator) ValidateIdRequest(req userparam.IdRequest) (map[string]string
 			WithMeta(map[string]interface{}{"req": req}).WithErr(err)
 	}
 
-	return nil, nil
+	return map[string]string{}, nil
 }
 
 func (v Validator) checkPublicKeyExist(value interface{}) error {
-	publicKey := value.(string)
-	id := v.keyGen.CreateUserId(publicKey)
+	publicKey, ok := value.(string)
+	if !ok {
+		return fmt.Errorf(errmsg.ErrorMsgInvalidInput)
+	}
+	id := v.keyGen.CreateUserID(publicKey)
 
-	return v.checkIdExist(id)
+	return v.checkIDExist(id)
 }

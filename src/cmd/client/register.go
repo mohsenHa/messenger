@@ -13,7 +13,7 @@ type RegisterRequest struct {
 	PublicKey string `json:"public_key"`
 }
 type RegisterResponse struct {
-	Id                string `json:"id"`
+	ID                string `json:"id"`
 	EncryptedCode     string `json:"encrypted_code"`
 	EncryptedCodeByte []byte
 }

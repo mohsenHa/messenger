@@ -25,4 +25,4 @@ services:
       - "traefik.http.routers.${SERVICE_NAME}_profiler.middlewares=${SERVICE_NAME}_strip_profiler"
       - "traefik.http.middlewares.${SERVICE_NAME}_strip_profiler.stripprefix.prefixes=/profiler"
       - "traefik.http.services.${SERVICE_NAME}_profiler.loadbalancer.server.port=1234"
-      - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=8088"
+      - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=8080"

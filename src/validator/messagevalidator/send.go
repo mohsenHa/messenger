@@ -1,6 +1,7 @@
 package messagevalidator
 
 import (
+	"errors"
 	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/mohsenHa/messenger/param/messageparam"
@@ -13,7 +14,7 @@ func (v Validator) ValidateSendRequest(req messageparam.SendRequest) (map[string
 
 	if err := validation.ValidateStruct(&req,
 
-		validation.Field(&req.ToId,
+		validation.Field(&req.ToID,
 			validation.Required,
 			validation.By(v.checkUserExist),
 		),
@@ -23,7 +24,8 @@ func (v Validator) ValidateSendRequest(req messageparam.SendRequest) (map[string
 	); err != nil {
 		fieldErrors := make(map[string]string)
 
-		errV, ok := err.(validation.Errors)
+		var errV = validation.Errors{}
+		ok := errors.As(err, errV)
 		if ok {
 			for key, value := range errV {
 				if value != nil {
@@ -37,12 +39,16 @@ func (v Validator) ValidateSendRequest(req messageparam.SendRequest) (map[string
 			WithMeta(map[string]interface{}{"req": req}).WithErr(err)
 	}
 
-	return nil, nil
+	return map[string]string{}, nil
 }
-func (v Validator) checkUserExist(value interface{}) error {
-	id := value.(string)
 
-	if isExist, err := v.urepo.IsIdExist(id); err != nil || !isExist {
+func (v Validator) checkUserExist(value interface{}) error {
+	id, ok := value.(string)
+	if !ok {
+		return fmt.Errorf(errmsg.ErrorMsgInvalidInput)
+	}
+
+	if isExist, err := v.urepo.IsIDExist(id); err != nil || !isExist {
 		if err != nil {
 			return err
 		}

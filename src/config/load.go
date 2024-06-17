@@ -16,17 +16,26 @@ func Load(configPath string) Config {
 	// Load default values using the confmap provider.
 	// We provide a flat map with the "." delimiter.
 	// A nested map can be loaded by setting the delimiter to an empty string "".
-	k.Load(confmap.Provider(defaultConfig, "."), nil)
+	err := k.Load(confmap.Provider(defaultConfig, "."), nil)
+	if err != nil {
+		panic(err)
+	}
 
 	// Load YAML config and merge into the previously loaded config (because we can).
-	k.Load(file.Provider(configPath), yaml.Parser())
+	err = k.Load(file.Provider(configPath), yaml.Parser())
+	if err != nil {
+		panic(err)
+	}
 
-	k.Load(env.Provider("MESSENGER_", ".", func(s string) string {
+	err = k.Load(env.Provider("MESSENGER_", ".", func(s string) string {
 		str := strings.Replace(strings.ToLower(
 			strings.TrimPrefix(s, "MESSENGER_")), "_", ".", -1)
 
 		return strings.Replace(str, "..", "_", -1)
 	}), nil)
+	if err != nil {
+		panic(err)
+	}
 
 	var cfg Config
 	if err := k.Unmarshal("", &cfg); err != nil {

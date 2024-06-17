@@ -26,6 +26,7 @@ func hello(c echo.Context) error {
 			fmt.Printf("%s\n", msg)
 		}
 	}).ServeHTTP(c.Response(), c.Request())
+
 	return nil
 }
 

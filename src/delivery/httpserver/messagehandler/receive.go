@@ -28,7 +28,7 @@ func (h Handler) receiveMessage(c echo.Context) error {
 	req.Response = c.Response()
 	req.Request = c.Request()
 
-	req.UserId = c.Get(config.AuthMiddlewareContextKey).(*authservice.Claims).Id
+	req.UserID = c.Get(config.AuthMiddlewareContextKey).(*authservice.Claims).ID
 
 	err := h.messageSvc.Receive(req)
 

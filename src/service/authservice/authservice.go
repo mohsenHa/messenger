@@ -29,12 +29,12 @@ func New(cfg Config) Service {
 }
 
 func (s Service) CreateAccessToken(user entity.User) (string, error) {
-	return s.createToken(user.Id, time.Second*time.Duration(s.config.AccessTTLSecond))
+	return s.createToken(user.ID, time.Second*time.Duration(s.config.AccessTTLSecond))
 }
 
 func (s Service) ParseToken(bearerToken string) (*Claims, error) {
 	tokenStr := strings.Replace(bearerToken, "Bearer ", "", 1)
-	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(_ *jwt.Token) (interface{}, error) {
 		return s.GetPublicKey()
 	})
 	if err != nil {
@@ -43,13 +43,12 @@ func (s Service) ParseToken(bearerToken string) (*Claims, error) {
 
 	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
 		return claims, nil
-	} else {
-		return nil, fmt.Errorf(errmsg.ErrorMsgUnauthorized)
 	}
+
+	return nil, fmt.Errorf(errmsg.ErrorMsgUnauthorized)
 }
 
 func (s Service) GetPublicKey() (interface{}, error) {
-
 	keyData, err := os.ReadFile(s.config.PublicKeyPath)
 	if err != nil {
 		return nil, err
@@ -58,11 +57,11 @@ func (s Service) GetPublicKey() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return key, nil
 }
 
 func (s Service) GetPrivateKey() (interface{}, error) {
-
 	keyDataPrivate, err := os.ReadFile(s.config.PrivateKeyPath)
 	if err != nil {
 		return nil, err
@@ -74,6 +73,7 @@ func (s Service) GetPrivateKey() (interface{}, error) {
 
 	return key, nil
 }
+
 func (s Service) GetSigningMethod() *jwt.SigningMethodRSA {
 	return jwt.SigningMethodRS512
 }
@@ -83,7 +83,7 @@ func (s Service) createToken(id string, expireDuration time.Duration) (string, e
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(expireDuration)),
 		},
-		Id: id,
+		ID: id,
 	}
 	accessToken := jwt.NewWithClaims(s.GetSigningMethod(), claims)
 	keyprivate, err := s.GetPrivateKey()

@@ -1,7 +1,7 @@
 package errmsg
 
 const (
-	ErrorMsgUnauthorized                           = "Unauthorized"
+	ErrorMsgUnauthorized                           = "unauthorized"
 	ErrorMsgNotFound                               = "record not found"
 	ErrorMsgCantScanQueryResult                    = "can't scan query result"
 	ErrorMsgSomethingWentWrong                     = "something went wrong"

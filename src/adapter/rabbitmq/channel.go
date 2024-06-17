@@ -92,7 +92,7 @@ func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabb
 			return nil, err
 		}
 	}
-	_, errQueueDeclare := ch.QueueDeclare(
+	_, err = ch.QueueDeclare(
 		rabbitmqChannelParams.queue, // name
 		true,                        // durable
 		false,                       // delete when unused
@@ -100,13 +100,12 @@ func newChannel(done <-chan bool, wg *sync.WaitGroup, rabbitmqChannelParams rabb
 		false,                       // no-wait
 		nil,                         // arguments
 	)
-
-	if errQueueDeclare != nil {
+	if err != nil {
 		ch, err = openChannel(conn)
 		if err != nil {
 			return nil, err
 		}
-		_, errQueueDeclare = ch.QueueDeclarePassive(
+		_, err = ch.QueueDeclarePassive(
 			rabbitmqChannelParams.queue, // name
 			true,                        // durable
 			false,                       // delete when unused
@@ -168,9 +167,9 @@ func (rc *rabbitmqChannel) callMeNextTime(f func()) {
 
 func openChannel(conn *amqp.Connection) (*amqp.Channel, error) {
 	ch, err := conn.Channel()
-
 	if err != nil {
 		return nil, err
 	}
+
 	return ch, nil
 }

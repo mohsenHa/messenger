@@ -4,7 +4,7 @@ import "context"
 
 type LoginRequest struct {
 	Ctx context.Context
-	Id  string `json:"id"`
+	ID  string `json:"id"`
 }
 
 type LoginResponse struct {

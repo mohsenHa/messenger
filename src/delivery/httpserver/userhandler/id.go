@@ -7,12 +7,12 @@ import (
 	"net/http"
 )
 
-func (h Handler) userId(c echo.Context) error {
-	var req userparam.IdRequest
+func (h Handler) userID(c echo.Context) error {
+	var req userparam.IDRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
-	if fieldErrors, err := h.userValidator.ValidateIdRequest(req); err != nil {
+	if fieldErrors, err := h.userValidator.ValidateIDRequest(req); err != nil {
 		msg, code := httpmsg.Error(err)
 		return c.JSON(code, echo.Map{
 			"message": msg,
@@ -20,7 +20,7 @@ func (h Handler) userId(c echo.Context) error {
 		})
 	}
 	req.Ctx = c.Request().Context()
-	resp, err := h.userSvc.Id(req)
+	resp, err := h.userSvc.ID(req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}

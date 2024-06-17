@@ -20,15 +20,19 @@ func NewLog(msg string) *Log {
 
 func (l *Log) WithCategory(cat loggerentity.Category) *Log {
 	l.cat = cat
+
 	return l
 }
 
 func (l *Log) WithSubCategory(sub loggerentity.SubCategory) *Log {
 	l.sub = sub
+
 	return l
 }
+
 func (l *Log) With(key loggerentity.ExtraKey, value interface{}) *Log {
 	l.extra[key] = value
+
 	return l
 }
 

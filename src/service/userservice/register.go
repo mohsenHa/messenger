@@ -10,7 +10,7 @@ func (s Service) Register(req userparam.RegisterRequest) (userparam.RegisterResp
 	unexpectedError := "unexpected error: %w"
 
 	u := entity.User{
-		Id:        s.keyGen.CreateUserId(req.PublicKey),
+		ID:        s.keyGen.CreateUserID(req.PublicKey),
 		PublicKey: req.PublicKey,
 		Code:      "",
 		Status:    0,
@@ -28,6 +28,6 @@ func (s Service) Register(req userparam.RegisterRequest) (userparam.RegisterResp
 	// return created user
 	return userparam.RegisterResponse{
 		EncryptedCode: encryptedCode,
-		Id:            u.Id,
+		ID:            u.ID,
 	}, nil
 }

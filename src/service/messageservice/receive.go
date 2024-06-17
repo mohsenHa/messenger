@@ -8,17 +8,18 @@ import (
 	"github.com/mohsenHa/messenger/logger"
 	"github.com/mohsenHa/messenger/logger/loggerentity"
 	"github.com/mohsenHa/messenger/param/messageparam"
-	"net"
+	"io"
 	"time"
 )
 
 func (s Service) Receive(req messageparam.ReceiveRequest) error {
-	outputChannelCloseSignal := make(chan bool, 10)
-	chanel, err := s.rabbitmq.GetOutputChannel(req.UserId, outputChannelCloseSignal)
+	outputChannelCloseSignalSize := 10
+	outputChannelCloseSignal := make(chan bool, outputChannelCloseSignalSize)
+	chanel, err := s.rabbitmq.GetOutputChannel(req.UserID, outputChannelCloseSignal)
 	if err != nil {
 		return err
 	}
-	heartBeat, err := s.rabbitmq.GetHeartbeatChannel(req.UserId)
+	heartBeat, err := s.rabbitmq.GetHeartbeatChannel(req.UserID)
 	if err != nil {
 		return err
 	}
@@ -39,9 +40,10 @@ func (s Service) Receive(req messageparam.ReceiveRequest) error {
 			case msg := <-chanel:
 				s.processMessage(msg, conn)
 			case <-websocketClosedChannel:
-				go s.handleMessagesAlreadyReceivedFromRabbit(req.UserId, chanel)
+				go s.handleMessagesAlreadyReceivedFromRabbit(req.UserID, chanel)
 				close(outputChannelCloseSignal)
 				logger.L().Debugf("websocket connection closed")
+
 				return
 			case <-time.After(time.Second):
 				err := wsutil.WriteServerMessage(conn, ws.OpPing, []byte("ping"))
@@ -49,6 +51,7 @@ func (s Service) Receive(req messageparam.ReceiveRequest) error {
 					logger.NewLog("Error on send ping to websocket").
 						With(loggerentity.ExtraKeyErrorMessage, err.Error()).
 						Error()
+
 					return
 				}
 				heartBeat <- true
@@ -59,8 +62,8 @@ func (s Service) Receive(req messageparam.ReceiveRequest) error {
 	return nil
 }
 
-func (s Service) handleMessagesAlreadyReceivedFromRabbit(userId string, chanel <-chan rabbitmq.Message) {
-	inputChannel, err := s.rabbitmq.GetInputChannel(userId)
+func (s Service) handleMessagesAlreadyReceivedFromRabbit(userID string, chanel <-chan rabbitmq.Message) {
+	inputChannel, err := s.rabbitmq.GetInputChannel(userID)
 	if err != nil {
 		logger.NewLog("Error on get input channel").
 			With(loggerentity.ExtraKeyErrorMessage, err.Error()).
@@ -73,17 +76,20 @@ func (s Service) handleMessagesAlreadyReceivedFromRabbit(userId string, chanel <
 			logger.NewLog("Error on ACK").
 				With(loggerentity.ExtraKeyErrorMessage, err.Error()).
 				Error()
+
 			continue
 		}
 	}
 }
-func (s Service) processMessage(msg rabbitmq.Message, conn net.Conn) {
+
+func (s Service) processMessage(msg rabbitmq.Message, conn io.Writer) {
 	body := msg.Body
 	err := wsutil.WriteServerMessage(conn, ws.OpText, body)
 	if err != nil {
 		logger.NewLog("Error on write to websocket").
 			With(loggerentity.ExtraKeyErrorMessage, err.Error()).
 			Error()
+
 		return
 	}
 
@@ -93,6 +99,7 @@ func (s Service) processMessage(msg rabbitmq.Message, conn net.Conn) {
 		logger.NewLog("Error on unmarshal message").
 			With(loggerentity.ExtraKeyErrorMessage, err.Error()).
 			Error()
+
 		return
 	}
 	if sendMessage.Type == messageparam.SendMessageMessageType {
@@ -104,20 +111,21 @@ func (s Service) processMessage(msg rabbitmq.Message, conn net.Conn) {
 		logger.NewLog("Error on ACK").
 			With(loggerentity.ExtraKeyErrorMessage, err.Error()).
 			Error()
+
 		return
 	}
 }
 
 func (s Service) sendDelivery(sendMessage messageparam.SendMessage) {
 	deliverMessage := messageparam.SendMessage{
-		Id:   sendMessage.Id,
+		ID:   sendMessage.ID,
 		Type: messageparam.SendMessageDeliverType,
 		From: messageparam.SendUser{
-			Id:        sendMessage.To.Id,
+			ID:        sendMessage.To.ID,
 			PublicKey: sendMessage.To.PublicKey,
 		},
 		To: messageparam.SendUser{
-			Id:        sendMessage.From.Id,
+			ID:        sendMessage.From.ID,
 			PublicKey: sendMessage.From.PublicKey,
 		},
 		SendTime: time.Now().UTC(),
@@ -127,23 +135,26 @@ func (s Service) sendDelivery(sendMessage messageparam.SendMessage) {
 		logger.NewLog("Error on marshal to json").
 			With(loggerentity.ExtraKeyErrorMessage, err.Error()).
 			Error()
+
 		return
 	}
-	fromChanel, err := s.rabbitmq.GetInputChannel(deliverMessage.To.Id)
+	fromChanel, err := s.rabbitmq.GetInputChannel(deliverMessage.To.ID)
 	if err != nil {
 		logger.NewLog("Error on get Input channel").
 			With(loggerentity.ExtraKeyErrorMessage, err.Error()).
 			Error()
+
 		return
 	}
 	fromChanel <- messageByte
-
 }
-func readMessage(conn net.Conn, websocketClosedChannel chan<- bool) {
+
+func readMessage(conn io.ReadWriter, websocketClosedChannel chan<- bool) {
 	for {
 		_, _, err := wsutil.ReadClientData(conn)
 		if err != nil {
 			websocketClosedChannel <- true
+
 			return
 		}
 	}

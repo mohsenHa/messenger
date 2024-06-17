@@ -1,6 +1,7 @@
 package uservalidator
 
 import (
+	"errors"
 	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/mohsenHa/messenger/param/userparam"
@@ -15,11 +16,11 @@ func (v Validator) ValidateRegisterRequest(req userparam.RegisterRequest) (map[s
 
 		validation.Field(&req.PublicKey,
 			validation.Required,
-			validation.By(v.checkIdUniqueness)),
+			validation.By(v.checkIDUniqueness)),
 	); err != nil {
 		fieldErrors := make(map[string]string)
-
-		errV, ok := err.(validation.Errors)
+		errV := validation.Errors{}
+		ok := errors.As(err, &errV)
 		if ok {
 			for key, value := range errV {
 				if value != nil {
@@ -33,14 +34,17 @@ func (v Validator) ValidateRegisterRequest(req userparam.RegisterRequest) (map[s
 			WithMeta(map[string]interface{}{"req": req}).WithErr(err)
 	}
 
-	return nil, nil
+	return map[string]string{}, nil
 }
 
-func (v Validator) checkIdUniqueness(value interface{}) error {
-	publicKey := value.(string)
-	id := v.keyGen.CreateUserId(publicKey)
+func (v Validator) checkIDUniqueness(value interface{}) error {
+	publicKey, ok := value.(string)
+	if !ok {
+		return fmt.Errorf(errmsg.ErrorMsgInvalidInput)
+	}
+	id := v.keyGen.CreateUserID(publicKey)
 
-	if isUnique, err := v.repo.IsIdUnique(id); err != nil || !isUnique {
+	if isUnique, err := v.repo.IsIDUnique(id); err != nil || !isUnique {
 		if err != nil {
 			return err
 		}

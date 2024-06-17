@@ -8,7 +8,7 @@ import (
 
 type ReceiveRequest struct {
 	Ctx         context.Context
-	UserId      string
+	UserID      string
 	EchoContext *echo.Context
 	Request     *http.Request
 	Response    *echo.Response

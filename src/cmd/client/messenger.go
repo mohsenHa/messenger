@@ -18,11 +18,11 @@ func Messenger(user User) {
 			return
 		}
 		if to == "id" {
-			fmt.Printf("Your Id is %s \n", user.Id)
+			fmt.Printf("Your ID is %s \n", user.ID)
 			continue
 		}
 		publicKey, err := GetPublicKey(GetPublicKeyRequest{
-			Id:    to,
+			ID:    to,
 			Token: user.Token,
 		})
 		if err != nil {
@@ -50,13 +50,13 @@ func startSendMessage(publicKey string, to string, token string) {
 		}
 		send, err := Send(SendRequest{
 			Message: encryptedMessage,
-			ToId:    to,
+			ToID:    to,
 			Token:   token,
 		})
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
-		fmt.Printf("Message sent with id %s\n", send.Id)
+		fmt.Printf("Message sent with id %s\n", send.ID)
 	}
 }

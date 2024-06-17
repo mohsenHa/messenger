@@ -11,7 +11,7 @@ func (s Service) updateCode(ctx context.Context, u entity.User) (string, error) 
 	if err != nil {
 		return "", err
 	}
-	err = s.repo.UpdateCode(ctx, u.Id, encryptdecrypt.GetMD5Hash(code))
+	err = s.repo.UpdateCode(ctx, u.ID, encryptdecrypt.GetMD5Hash(code))
 	if err != nil {
 		return "", err
 	}
@@ -19,6 +19,6 @@ func (s Service) updateCode(ctx context.Context, u entity.User) (string, error) 
 	if err != nil {
 		return "", err
 	}
-	return encryptedCode, nil
 
+	return encryptedCode, nil
 }

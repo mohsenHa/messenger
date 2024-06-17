@@ -4,9 +4,9 @@ import (
 	"github.com/mohsenHa/messenger/param/userparam"
 )
 
-func (s Service) Id(req userparam.IdRequest) (userparam.IdResponse, error) {
+func (s Service) ID(req userparam.IDRequest) (userparam.IDResponse, error) {
 	// return created user
-	return userparam.IdResponse{
-		Id: s.keyGen.CreateUserId(req.PublicKey),
+	return userparam.IDResponse{
+		ID: s.keyGen.CreateUserID(req.PublicKey),
 	}, nil
 }

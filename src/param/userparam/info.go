@@ -3,14 +3,14 @@ package userparam
 import "context"
 
 type UserInfo struct {
-	Id        string `json:"id"`
+	ID        string `json:"id"`
 	Status    uint   `json:"status"`
 	PublicKey string `json:"public_key"`
 }
 
 type InfoRequest struct {
 	Ctx    context.Context
-	UserId string
+	UserID string
 }
 
 type InfoResponse struct {

@@ -11,7 +11,7 @@ import (
 
 type SendRequest struct {
 	Message string `json:"message"`
-	ToId    string `json:"to_id"`
+	ToID    string `json:"to_id"`
 	Token   string `json:"-"`
 }
 type SendResponse struct {

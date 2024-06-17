@@ -9,20 +9,24 @@ import (
 )
 
 func (s Service) Send(req messageparam.SendRequest) (messageparam.SendResponse, error) {
-
-	fromUser, _ := s.userRepo.GetUserById(req.Ctx, req.FromId)
-	toUser, _ := s.userRepo.GetUserById(req.Ctx, req.ToId)
-
+	fromUser, err := s.userRepo.GetUserByID(req.Ctx, req.FromID)
+	if err != nil {
+		return messageparam.SendResponse{}, fmt.Errorf("unexpected error: %w", err)
+	}
+	toUser, err := s.userRepo.GetUserByID(req.Ctx, req.ToID)
+	if err != nil {
+		return messageparam.SendResponse{}, fmt.Errorf("unexpected error: %w", err)
+	}
 	id := uuid.New()
 	sendMessage := messageparam.SendMessage{
-		Id:   id.String(),
+		ID:   id.String(),
 		Type: messageparam.SendMessageMessageType,
 		From: messageparam.SendUser{
-			Id:        fromUser.Id,
+			ID:        fromUser.ID,
 			PublicKey: fromUser.PublicKey,
 		},
 		To: messageparam.SendUser{
-			Id:        toUser.Id,
+			ID:        toUser.ID,
 			PublicKey: toUser.PublicKey,
 		},
 		Body:     req.Message,
@@ -33,7 +37,7 @@ func (s Service) Send(req messageparam.SendRequest) (messageparam.SendResponse, 
 		return messageparam.SendResponse{}, fmt.Errorf("unexpected error: %w", err)
 	}
 
-	chanel, err := s.rabbitmq.GetInputChannel(req.ToId)
+	chanel, err := s.rabbitmq.GetInputChannel(req.ToID)
 	if err != nil {
 		return messageparam.SendResponse{}, err
 	}

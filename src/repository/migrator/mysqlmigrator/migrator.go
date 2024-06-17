@@ -19,7 +19,7 @@ func New(dbConfig mysql.Config) Migrator {
 	migrations := &migrate.FileMigrationSource{
 		Dir: "./repository/mysql/migrations",
 	}
-	db := mysql.NewDb(dbConfig)
+	db := mysql.NewDB(dbConfig)
 
 	return Migrator{dbConfig: dbConfig, dialect: "mysql", migrations: migrations, db: db}
 }
@@ -28,7 +28,7 @@ func (m Migrator) Up() {
 
 	n, err := migrate.Exec(m.db, m.dialect, m.migrations, migrate.Up)
 	if err != nil {
-		panic(fmt.Errorf("can't apply migrations: %v", err))
+		panic(fmt.Errorf("can't apply migrations: %w", err))
 	}
 	fmt.Printf("Applied %d migrations!\n", n)
 }
@@ -36,7 +36,7 @@ func (m Migrator) Up() {
 func (m Migrator) Down() {
 	n, err := migrate.Exec(m.db, m.dialect, m.migrations, migrate.Down)
 	if err != nil {
-		panic(fmt.Errorf("can't rollback migrations: %v", err))
+		panic(fmt.Errorf("can't rollback migrations: %W", err))
 	}
 	fmt.Printf("Rollbacked %d migrations!\n", n)
 }

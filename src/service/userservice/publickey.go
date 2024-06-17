@@ -5,7 +5,7 @@ import (
 )
 
 func (s Service) PublicKey(req userparam.PublicKeyRequest) (userparam.PublicKeyResponse, error) {
-	user, err := s.repo.GetUserById(req.Ctx, req.Id)
+	user, err := s.repo.GetUserByID(req.Ctx, req.ID)
 	if err != nil {
 		return userparam.PublicKeyResponse{}, err
 	}

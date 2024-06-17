@@ -5,7 +5,7 @@ import (
 )
 
 func (s Service) Info(req userparam.InfoRequest) (userparam.InfoResponse, error) {
-	user, err := s.repo.GetUserById(req.Ctx, req.UserId)
+	user, err := s.repo.GetUserByID(req.Ctx, req.UserID)
 	if err != nil {
 		return userparam.InfoResponse{}, err
 	}
@@ -13,7 +13,7 @@ func (s Service) Info(req userparam.InfoRequest) (userparam.InfoResponse, error)
 	// return created user
 	return userparam.InfoResponse{
 		Info: userparam.UserInfo{
-			Id:        user.Id,
+			ID:        user.ID,
 			Status:    user.Status,
 			PublicKey: user.PublicKey,
 		},

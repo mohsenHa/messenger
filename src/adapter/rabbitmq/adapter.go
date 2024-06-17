@@ -42,13 +42,13 @@ func New(done <-chan bool, wg *sync.WaitGroup, config Config) *ChannelAdapter {
 		time.Sleep(time.Second * time.Duration(config.ReconnectSecond))
 		if err == nil {
 			break
-		} else {
-			logger.NewLog("rabbitmq connection error").
-				WithCategory(loggerentity.CategoryRabbitMQ).
-				WithSubCategory(loggerentity.SubCategoryRabbitMQConnection).
-				With(loggerentity.ExtraKeyErrorMessage, err.Error()).
-				Error()
 		}
+		logger.NewLog("rabbitmq connection error").
+			WithCategory(loggerentity.CategoryRabbitMQ).
+			WithSubCategory(loggerentity.SubCategoryRabbitMQConnection).
+			With(loggerentity.ExtraKeyErrorMessage, err.Error()).
+			Error()
+
 	}
 
 	return c
@@ -109,13 +109,12 @@ func (ca *ChannelAdapter) waitForConnectionClose() {
 				time.Sleep(time.Second * time.Duration(ca.config.ReconnectSecond))
 				if e == nil {
 					break
-				} else {
-					logger.NewLog("Connection failed to rabbitmq").
-						WithCategory(loggerentity.CategoryRabbitMQ).
-						WithSubCategory(loggerentity.SubCategoryRabbitMQConnection).
-						With(loggerentity.ExtraKeyErrorMessage, err.Error()).
-						Error()
 				}
+				logger.NewLog("Connection failed to rabbitmq").
+					WithCategory(loggerentity.CategoryRabbitMQ).
+					WithSubCategory(loggerentity.SubCategoryRabbitMQConnection).
+					With(loggerentity.ExtraKeyErrorMessage, err.Error()).
+					Error()
 			}
 
 			return
@@ -124,9 +123,10 @@ func (ca *ChannelAdapter) waitForConnectionClose() {
 }
 
 func (ca *ChannelAdapter) NewChannel(name string) error {
-	rabbitMQCloseSignal := make(chan bool, 10)
-	noOutputConsumer := make(chan bool, 10)
-	heartBeatSignalChannel := make(chan bool, 10)
+	chanBuffer := 10
+	rabbitMQCloseSignal := make(chan bool, chanBuffer)
+	noOutputConsumer := make(chan bool, chanBuffer)
+	heartBeatSignalChannel := make(chan bool, chanBuffer)
 	channel, err := newChannel(
 		ca.done,
 		ca.wg,
@@ -145,6 +145,7 @@ func (ca *ChannelAdapter) NewChannel(name string) error {
 	}
 	ca.channels[name] = channel
 	ca.CloseIdleChannel(name, rabbitMQCloseSignal, noOutputConsumer, heartBeatSignalChannel)
+
 	return nil
 }
 
@@ -159,16 +160,19 @@ func (ca *ChannelAdapter) CloseIdleChannel(name string, closeSignalChannel chan 
 				logger.L().Debugf("Channel is idle more than %d seconds. produce close signal.", ca.config.ChannelCleanerTimerInSecond)
 				close(closeSignalChannel)
 				delete(ca.channels, name)
+
 				return
 			case <-noOutputConsumer:
 				logger.L().Debugf("Channel there is no output consumer produce close signal")
 				close(closeSignalChannel)
 				delete(ca.channels, name)
+
 				return
 			case <-heartBeatSignalChannel:
 				break
 			case <-closeSignalChannel:
 				delete(ca.channels, name)
+
 				return
 			case <-ca.done:
 				return
@@ -185,6 +189,7 @@ func (ca *ChannelAdapter) GetInputChannel(name string) (chan<- []byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return ca.GetInputChannel(name)
 }
 
@@ -196,6 +201,7 @@ func (ca *ChannelAdapter) GetOutputChannel(name string, outputChannelCloseSignal
 	if err != nil {
 		return nil, err
 	}
+
 	return ca.GetOutputChannel(name, outputChannelCloseSignal)
 }
 
@@ -207,6 +213,7 @@ func (ca *ChannelAdapter) GetHeartbeatChannel(name string) (chan<- bool, error) 
 	if err != nil {
 		return nil, err
 	}
+
 	return ca.GetHeartbeatChannel(name)
 }
 

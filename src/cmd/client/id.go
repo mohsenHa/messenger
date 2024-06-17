@@ -9,7 +9,7 @@ import (
 )
 
 type GetPublicKeyRequest struct {
-	Id    string `json:"id"`
+	ID    string `json:"id"`
 	Token string `json:"hidden"`
 }
 type GetPublicKeyResponse struct {

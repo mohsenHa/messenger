@@ -69,17 +69,17 @@ func (s Server) Serve() {
 			logger.NewLog("http-server").
 				WithCategory(loggerentity.CategoryRequestResponse).
 				WithSubCategory(loggerentity.SubCategoryInternalRequest).
-				With(loggerentity.ExtraKeyRequestId, v.RequestID).
+				With(loggerentity.ExtraKeyRequestID, v.RequestID).
 				With(loggerentity.ExtraKeyHost, v.Host).
 				With(loggerentity.ExtraKeyContentLength, v.ContentLength).
 				With(loggerentity.ExtraKeyProtocol, v.Protocol).
 				With(loggerentity.ExtraKeyMethod, v.Method).
 				With(loggerentity.ExtraKeyLatency, v.Latency).
 				With(loggerentity.ExtraKeyErrorMessage, errMsg).
-				With(loggerentity.ExtraKeyRemoteIp, v.RemoteIP).
+				With(loggerentity.ExtraKeyRemoteIP, v.RemoteIP).
 				With(loggerentity.ExtraKeyResponseSize, v.ResponseSize).
-				With(loggerentity.ExtraKeyUri, v.URI).
-				With(loggerentity.ExtraKeyUriPath, v.URIPath).
+				With(loggerentity.ExtraKeyURI, v.URI).
+				With(loggerentity.ExtraKeyURIPath, v.URIPath).
 				With(loggerentity.ExtraKeyStatusCode, v.Status).
 				Info()
 
@@ -88,7 +88,7 @@ func (s Server) Serve() {
 	}))
 
 	//s.Router.Use(middleware.Logger())
-
+	//
 	s.Router.Use(middleware.Recover())
 
 	// Routes
