@@ -35,6 +35,7 @@ func (h Handler) sendMessage(c echo.Context) error {
 	if req.FromID == req.ToID {
 		msg, code := httpmsg.Error(fmt.Errorf("sender and receiver cannot be the same %s and %s",
 			req.FromID, req.ToID))
+
 		return c.JSON(code, echo.Map{
 			"message": msg,
 		})

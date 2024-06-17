@@ -29,6 +29,9 @@ func Register(request RegisterRequest) (RegisterResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(timeout))
 	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetHost.path("user/register"), bytes.NewBuffer(b))
+	if err != nil {
+		return RegisterResponse{}, err
+	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return RegisterResponse{}, err

@@ -220,8 +220,11 @@ func (u *User) Login() error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(timeout))
 	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetHost.path("user/login"), bytes.NewBuffer(b))
-	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
 
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -272,9 +275,13 @@ func (u *User) verify(code string) error {
 	timeout := 5
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(timeout))
 	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetHost.path("user/verify"), bytes.NewBuffer(b))
-	resp, err := http.DefaultClient.Do(req)
 
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetHost.path("user/verify"), bytes.NewBuffer(b))
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
