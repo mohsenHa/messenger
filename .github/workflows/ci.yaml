@@ -19,14 +19,14 @@ jobs:
       - name: Install dependencies
         run: cd src && go mod tidy
 
-      - name: dockerUp
-        run: sudo docker-compose -f ./serve/ci_cd/docker-compose.yml up -d
+#      - name: dockerUp
+#        run: sudo docker-compose -f ./serve/ci_cd/docker-compose.yml up -d
 
 #      - name: Test
 #        run: make test
 
-      - name: dockerDown
-        run: sudo docker-compose -f ./serve/ci_cd/docker-compose.yml down
+#      - name: dockerDown
+#        run: sudo docker-compose -f ./serve/ci_cd/docker-compose.yml down
 
       - name: Format
         run: make format
