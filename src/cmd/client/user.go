@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
@@ -12,6 +13,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 )
 
 type LoginRequest struct {
@@ -179,7 +181,10 @@ func (u *User) Decrypt(encryptedByte []byte) ([]byte, error) {
 	return decryptedBytes, nil
 }
 func (u *User) Check() (bool, error) {
-	request, err := http.NewRequest(http.MethodGet, targetHost.path("user/info"), nil)
+	timeout := 5
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(timeout))
+	defer cancel()
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, targetHost.path("user/info"), nil)
 	if err != nil {
 		return false, err
 	}
@@ -211,8 +216,12 @@ func (u *User) Login() error {
 	if err != nil {
 		return err
 	}
+	timeout := 5
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(timeout))
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetHost.path("user/login"), bytes.NewBuffer(b))
+	resp, err := http.DefaultClient.Do(req)
 
-	resp, err := http.Post(targetHost.path("user/login"), ContentTypeApplicationJSON, bytes.NewBuffer(b))
 	if err != nil {
 		return err
 	}
@@ -247,6 +256,7 @@ func (u *User) Login() error {
 		return err
 	}
 	u.Store()
+
 	return nil
 }
 
@@ -259,7 +269,12 @@ func (u *User) verify(code string) error {
 		return err
 	}
 
-	resp, err := http.Post(targetHost.path("user/verify"), ContentTypeApplicationJSON, bytes.NewBuffer(b))
+	timeout := 5
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(timeout))
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetHost.path("user/verify"), bytes.NewBuffer(b))
+	resp, err := http.DefaultClient.Do(req)
+
 	if err != nil {
 		return err
 	}

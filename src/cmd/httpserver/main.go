@@ -18,7 +18,6 @@ import (
 	"github.com/mohsenHa/messenger/validator/uservalidator"
 	"log"
 	"net/http"
-	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"sync"
@@ -70,9 +69,12 @@ func main() {
 }
 func profiling(cfg config.Config, wg *sync.WaitGroup, done <-chan bool) {
 	fmt.Printf("Profiling enabled on port %d\n", cfg.Application.ProfilingPort)
-	srv := &http.Server{Addr: fmt.Sprintf(":%d", cfg.Application.ProfilingPort)}
-	wg.Add(1)
+	srv := &http.Server{
+		Addr:        fmt.Sprintf(":%d", cfg.Application.ProfilingPort),
+		ReadTimeout: time.Second,
+	}
 
+	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
@@ -81,16 +83,15 @@ func profiling(cfg config.Config, wg *sync.WaitGroup, done <-chan bool) {
 		}
 	}()
 
+	wg.Add(1)
 	go func() {
-		for {
-			select {
-			case <-done:
-				ctx, cancel := context.WithTimeout(context.Background(), time.Duration(5)*time.Second)
-				defer cancel()
-				if err := srv.Shutdown(ctx); err != nil {
-					panic(err)
-				}
-			}
+		defer wg.Done()
+		<-done
+		timeout := 5
+		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+		defer cancel()
+		if err := srv.Shutdown(ctx); err != nil {
+			panic(err)
 		}
 	}()
 }
@@ -109,5 +110,6 @@ func setupServices(cfg config.Config, wg *sync.WaitGroup, done chan bool) (requi
 
 	requiredValidators.UserValidator = uservalidator.New(userRepo, keyGen)
 	requiredValidators.MessageValidator = messagevalidator.New(userRepo, keyGen)
-	return
+
+	return requiredServices, requiredValidators
 }

@@ -28,10 +28,10 @@ func Load(configPath string) Config {
 	}
 
 	err = k.Load(env.Provider("MESSENGER_", ".", func(s string) string {
-		str := strings.Replace(strings.ToLower(
-			strings.TrimPrefix(s, "MESSENGER_")), "_", ".", -1)
+		str := strings.ReplaceAll(strings.ToLower(
+			strings.TrimPrefix(s, "MESSENGER_")), "_", ".")
 
-		return strings.Replace(str, "..", "_", -1)
+		return strings.ReplaceAll(str, "..", "_")
 	}), nil)
 	if err != nil {
 		panic(err)

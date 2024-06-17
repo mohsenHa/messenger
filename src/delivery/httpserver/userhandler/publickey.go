@@ -14,6 +14,7 @@ func (h Handler) publicKey(c echo.Context) error {
 	}
 	if fieldErrors, err := h.userValidator.ValidatePublicKeyRequest(req); err != nil {
 		msg, code := httpmsg.Error(err)
+
 		return c.JSON(code, echo.Map{
 			"message": msg,
 			"errors":  fieldErrors,

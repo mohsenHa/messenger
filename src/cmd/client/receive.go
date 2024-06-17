@@ -26,7 +26,7 @@ func Receive(wg *sync.WaitGroup, done <-chan bool, user User) {
 	go func() {
 		defer func(c *websocket.Conn) {
 			wg.Done()
-			err := c.Close()
+			err = c.Close()
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -49,12 +49,8 @@ func Receive(wg *sync.WaitGroup, done <-chan bool, user User) {
 				switch msg.Type {
 				case messageparam.SendMessageDeliverType:
 					deliverReceived(msg)
-
-					break
 				case messageparam.SendMessageMessageType:
 					messageReceived(msg, user)
-
-					break
 				default:
 					fmt.Printf("Message recived with invalid type %v", msg)
 				}

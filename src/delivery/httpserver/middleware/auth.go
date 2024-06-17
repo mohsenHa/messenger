@@ -23,6 +23,7 @@ func Auth(service authservice.Service) echo.MiddlewareFunc {
 			if err != nil {
 				return nil, err
 			}
+
 			return claims, nil
 		},
 	})

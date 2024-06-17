@@ -36,7 +36,7 @@ func (m Migrator) Up() {
 func (m Migrator) Down() {
 	n, err := migrate.Exec(m.db, m.dialect, m.migrations, migrate.Down)
 	if err != nil {
-		panic(fmt.Errorf("can't rollback migrations: %W", err))
+		panic(fmt.Errorf("can't rollback migrations: %w", err))
 	}
 	fmt.Printf("Rollbacked %d migrations!\n", n)
 }

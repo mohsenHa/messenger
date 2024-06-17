@@ -15,7 +15,7 @@ func (v Validator) ValidateInfoRequest(req userparam.InfoRequest) (map[string]st
 		fieldErrors := make(map[string]string)
 
 		errV := validation.Errors{}
-		ok := errors.As(err, &err)
+		ok := errors.As(err, &errV)
 		if ok {
 			for key, value := range errV {
 				if value != nil {

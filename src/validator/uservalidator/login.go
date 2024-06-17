@@ -19,7 +19,7 @@ func (v Validator) ValidateLoginRequest(req userparam.LoginRequest) (map[string]
 	); err != nil {
 		fieldErrors := make(map[string]string)
 		errV := validation.Errors{}
-		ok := errors.As(err, &err)
+		ok := errors.As(err, &errV)
 		if ok {
 			for key, value := range errV {
 				if value != nil {

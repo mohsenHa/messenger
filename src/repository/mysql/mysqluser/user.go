@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"github.com/mohsenHa/messenger/entity"
 	"github.com/mohsenHa/messenger/pkg/errmsg"
 	"github.com/mohsenHa/messenger/pkg/richerror"
@@ -17,7 +16,6 @@ func (d *DB) Register(ctx context.Context, u entity.User) (entity.User, error) {
 	_, err := d.conn.Conn().ExecContext(ctx, `insert into users(id,public_key,code,status) values(?,?,?,?)`,
 		u.ID, u.PublicKey, u.Code, u.Status)
 	if err != nil {
-		fmt.Println(err)
 		return entity.User{}, richerror.New(op).WithErr(err).
 			WithMessage(errmsg.ErrorMsgSomethingWentWrong).WithKind(richerror.KindUnexpected)
 	}

@@ -17,6 +17,7 @@ func (h Handler) sendMessage(c echo.Context) error {
 	}
 	if fieldErrors, err := h.messageValidator.ValidateSendRequest(req); err != nil {
 		msg, code := httpmsg.Error(err)
+
 		return c.JSON(code, echo.Map{
 			"message": msg,
 			"errors":  fieldErrors,
@@ -24,8 +25,13 @@ func (h Handler) sendMessage(c echo.Context) error {
 	}
 	req.Ctx = c.Request().Context()
 
-	req.FromID = c.Get(config.AuthMiddlewareContextKey).(*authservice.Claims).ID
-
+	u, ok := c.Get(config.AuthMiddlewareContextKey).(*authservice.Claims)
+	if !ok {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"message": "Invalid auth token",
+		})
+	}
+	req.FromID = u.ID
 	if req.FromID == req.ToID {
 		msg, code := httpmsg.Error(fmt.Errorf("sender and receiver cannot be the same %s and %s",
 			req.FromID, req.ToID))

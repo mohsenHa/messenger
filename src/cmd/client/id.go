@@ -2,11 +2,13 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/mohsenHa/messenger/logger"
 	"io"
 	"net/http"
+	"time"
 )
 
 type GetPublicKeyRequest struct {
@@ -22,7 +24,11 @@ func GetPublicKey(req GetPublicKeyRequest) (GetPublicKeyResponse, error) {
 	if err != nil {
 		return GetPublicKeyResponse{}, err
 	}
-	request, err := http.NewRequest(http.MethodPost, targetHost.path("user/public_key"), bytes.NewBuffer(b))
+	timeout := 5
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(timeout))
+	defer cancel()
+
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, targetHost.path("user/public_key"), bytes.NewBuffer(b))
 	if err != nil {
 		return GetPublicKeyResponse{}, err
 	}

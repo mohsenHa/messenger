@@ -16,6 +16,7 @@ func (h Handler) info(c echo.Context) error {
 	}
 	if fieldErrors, err := h.userValidator.ValidateInfoRequest(req); err != nil {
 		msg, code := httpmsg.Error(err)
+
 		return c.JSON(code, echo.Map{
 			"message": msg,
 			"errors":  fieldErrors,
@@ -23,7 +24,13 @@ func (h Handler) info(c echo.Context) error {
 	}
 	req.Ctx = c.Request().Context()
 
-	req.UserID = c.Get(config.AuthMiddlewareContextKey).(*authservice.Claims).ID
+	u, ok := c.Get(config.AuthMiddlewareContextKey).(*authservice.Claims)
+	if !ok {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"message": "invalid auth token",
+		})
+	}
+	req.UserID = u.ID
 
 	resp, err := h.userSvc.Info(req)
 	if err != nil {

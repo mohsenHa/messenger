@@ -34,10 +34,10 @@ type RequiredValidators struct {
 	MessageValidator messagevalidator.Validator
 }
 
-func New(config config.Config, services RequiredServices, validators RequiredValidators) Server {
+func New(cfg config.Config, services RequiredServices, validators RequiredValidators) Server {
 	return Server{
 		Router:         echo.New(),
-		config:         config,
+		config:         cfg,
 		messageHandler: messagehandler.New(services.MessageService, services.AuthService, validators.MessageValidator),
 		userHandler:    userhandler.New(services.UserService, validators.UserValidator, services.AuthService),
 	}
@@ -87,8 +87,6 @@ func (s Server) Serve() {
 		},
 	}))
 
-	//s.Router.Use(middleware.Logger())
-	//
 	s.Router.Use(middleware.Recover())
 
 	// Routes

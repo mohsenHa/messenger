@@ -25,7 +25,7 @@ func (v Validator) ValidateSendRequest(req messageparam.SendRequest) (map[string
 		fieldErrors := make(map[string]string)
 
 		var errV = validation.Errors{}
-		ok := errors.As(err, errV)
+		ok := errors.As(err, &errV)
 		if ok {
 			for key, value := range errV {
 				if value != nil {
