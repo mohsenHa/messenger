@@ -16,7 +16,7 @@ format:
 	echo "which golangci-lint"
 	@which golangci-lint || (go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.54.0)
 	echo "golangci-lint run --fix"
-	@golangci-lint run --fix
+	cd $(ROOT) && @golangci-lint run --fix
 
 build:
 	cd $(ROOT)
