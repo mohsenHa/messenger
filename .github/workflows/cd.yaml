@@ -1,9 +1,6 @@
 name: CD
 
 on:
-  pull_request:
-    types: [opened, edited, reopened, synchronize, ready_for_review]
-    branches: [main]
   push:
     branches: [main]
 
