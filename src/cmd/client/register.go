@@ -60,5 +60,4 @@ func Register(request RegisterRequest) (RegisterResponse, error) {
 	}
 
 	return response, nil
-
 }

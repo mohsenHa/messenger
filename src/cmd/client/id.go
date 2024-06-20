@@ -5,10 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/mohsenHa/messenger/logger"
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/mohsenHa/messenger/logger"
 )
 
 type GetPublicKeyRequest struct {
@@ -59,5 +60,4 @@ func GetPublicKey(req GetPublicKeyRequest) (GetPublicKeyResponse, error) {
 	}
 
 	return response, nil
-
 }

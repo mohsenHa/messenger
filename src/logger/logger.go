@@ -1,9 +1,10 @@
 package logger
 
 import (
+	"sync"
+
 	"github.com/mohsenHa/messenger/logger/adapter/zaplogger"
 	"github.com/mohsenHa/messenger/logger/loggerentity"
-	"sync"
 )
 
 type Config struct {

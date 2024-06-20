@@ -2,12 +2,13 @@ package authservice
 
 import (
 	"fmt"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/mohsenHa/messenger/entity"
-	"github.com/mohsenHa/messenger/pkg/errmsg"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/mohsenHa/messenger/entity"
+	"github.com/mohsenHa/messenger/pkg/errmsg"
 )
 
 type Config struct {

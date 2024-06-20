@@ -2,6 +2,7 @@ package keygenerator
 
 import (
 	"fmt"
+
 	"github.com/labstack/gommon/random"
 	"github.com/mohsenHa/messenger/pkg/encryptdecrypt"
 )

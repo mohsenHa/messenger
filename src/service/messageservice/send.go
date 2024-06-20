@@ -3,9 +3,10 @@ package messageservice
 import (
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/mohsenHa/messenger/param/messageparam"
-	"time"
 )
 
 func (s Service) Send(req messageparam.SendRequest) (messageparam.SendResponse, error) {

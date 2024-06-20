@@ -3,9 +3,10 @@ package mysql
 import (
 	"database/sql"
 	"fmt"
-	//use mysql driver
-	_ "github.com/go-sql-driver/mysql"
 	"time"
+
+	// use mysql driver
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Config struct {

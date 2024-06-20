@@ -12,6 +12,7 @@ type hostType string
 func (ht hostType) path(api string) string {
 	return "http://" + string(ht) + "/" + api
 }
+
 func (ht hostType) ws(api string) string {
 	return "ws://" + string(ht) + "/" + api
 }
@@ -47,5 +48,4 @@ func main() {
 	close(done)
 	fmt.Println("Wait for done")
 	wg.Wait()
-
 }

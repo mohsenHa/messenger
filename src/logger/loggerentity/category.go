@@ -1,8 +1,10 @@
 package loggerentity
 
-type Category string
-type SubCategory string
-type ExtraKey string
+type (
+	Category    string
+	SubCategory string
+	ExtraKey    string
+)
 
 const (
 	CategoryNotDefined      Category = "NotDefined"

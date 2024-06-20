@@ -1,12 +1,13 @@
 package messagehandler
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/mohsenHa/messenger/config"
 	"github.com/mohsenHa/messenger/param/messageparam"
 	"github.com/mohsenHa/messenger/pkg/httpmsg"
 	"github.com/mohsenHa/messenger/service/authservice"
-	"net/http"
 )
 
 func (h Handler) receiveMessage(c echo.Context) error {
@@ -37,7 +38,6 @@ func (h Handler) receiveMessage(c echo.Context) error {
 	}
 	req.UserID = u.ID
 	err := h.messageSvc.Receive(req)
-
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}

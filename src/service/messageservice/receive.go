@@ -2,14 +2,15 @@ package messageservice
 
 import (
 	"encoding/json"
+	"io"
+	"time"
+
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsutil"
 	"github.com/mohsenHa/messenger/adapter/rabbitmq"
 	"github.com/mohsenHa/messenger/logger"
 	"github.com/mohsenHa/messenger/logger/loggerentity"
 	"github.com/mohsenHa/messenger/param/messageparam"
-	"io"
-	"time"
 )
 
 func (s Service) Receive(req messageparam.ReceiveRequest) error {

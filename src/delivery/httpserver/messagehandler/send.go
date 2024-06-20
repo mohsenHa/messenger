@@ -2,12 +2,13 @@ package messagehandler
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/mohsenHa/messenger/config"
 	"github.com/mohsenHa/messenger/param/messageparam"
 	"github.com/mohsenHa/messenger/pkg/httpmsg"
 	"github.com/mohsenHa/messenger/service/authservice"
-	"net/http"
 )
 
 func (h Handler) sendMessage(c echo.Context) error {

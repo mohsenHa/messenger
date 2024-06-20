@@ -2,10 +2,11 @@ package rabbitmq
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/mohsenHa/messenger/logger"
 	"github.com/mohsenHa/messenger/logger/loggerentity"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"time"
 )
 
 func (rc *rabbitmqChannel) GetOutputChannel(outputChannelCloseSignal <-chan bool) <-chan Message {

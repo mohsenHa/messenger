@@ -1,12 +1,13 @@
 package userhandler
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/mohsenHa/messenger/config"
 	"github.com/mohsenHa/messenger/param/userparam"
 	"github.com/mohsenHa/messenger/pkg/httpmsg"
 	"github.com/mohsenHa/messenger/service/authservice"
-	"net/http"
 )
 
 func (h Handler) info(c echo.Context) error {

@@ -2,6 +2,7 @@ package userservice
 
 import (
 	"context"
+
 	"github.com/mohsenHa/messenger/entity"
 	"github.com/mohsenHa/messenger/pkg/encryptdecrypt"
 )

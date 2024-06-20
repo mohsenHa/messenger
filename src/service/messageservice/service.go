@@ -2,6 +2,7 @@ package messageservice
 
 import (
 	"context"
+
 	"github.com/mohsenHa/messenger/adapter/rabbitmq"
 	"github.com/mohsenHa/messenger/entity"
 )

@@ -2,13 +2,14 @@ package zaplogger
 
 import (
 	"fmt"
+	"os"
+	"sync"
+
 	"github.com/mohsenHa/messenger/logger/loggerentity"
 	"github.com/mohsenHa/messenger/pkg/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"os"
-	"sync"
 )
 
 type ZapLogger struct {

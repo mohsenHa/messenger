@@ -3,6 +3,7 @@ package mysqlmigrator
 import (
 	"database/sql"
 	"fmt"
+
 	"github.com/mohsenHa/messenger/repository/mysql"
 	migrate "github.com/rubenv/sql-migrate"
 )
@@ -25,7 +26,6 @@ func New(dbConfig mysql.Config) Migrator {
 }
 
 func (m Migrator) Up() {
-
 	n, err := migrate.Exec(m.db, m.dialect, m.migrations, migrate.Up)
 	if err != nil {
 		panic(fmt.Errorf("can't apply migrations: %w", err))

@@ -180,6 +180,7 @@ func (u *User) Decrypt(encryptedByte []byte) ([]byte, error) {
 
 	return decryptedBytes, nil
 }
+
 func (u *User) Check() (bool, error) {
 	timeout := 5
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(timeout))

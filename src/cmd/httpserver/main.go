@@ -3,6 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"sync"
+	"time"
+
 	"github.com/mohsenHa/messenger/adapter/rabbitmq"
 	"github.com/mohsenHa/messenger/config"
 	"github.com/mohsenHa/messenger/delivery/httpserver"
@@ -16,12 +23,6 @@ import (
 	"github.com/mohsenHa/messenger/service/userservice"
 	"github.com/mohsenHa/messenger/validator/messagevalidator"
 	"github.com/mohsenHa/messenger/validator/uservalidator"
-	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"sync"
-	"time"
 )
 
 func main() {
@@ -67,6 +68,7 @@ func main() {
 	fmt.Println("received interrupt signal, shutting down gracefully..")
 	<-ctxWithTimeout.Done()
 }
+
 func profiling(cfg config.Config, wg *sync.WaitGroup, done <-chan bool) {
 	fmt.Printf("Profiling enabled on port %d\n", cfg.Application.ProfilingPort)
 	srv := &http.Server{

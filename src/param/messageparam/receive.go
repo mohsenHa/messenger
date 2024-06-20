@@ -2,8 +2,9 @@ package messageparam
 
 import (
 	"context"
-	"github.com/labstack/echo/v4"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 type ReceiveRequest struct {

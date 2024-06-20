@@ -3,6 +3,7 @@ package messagevalidator
 import (
 	"errors"
 	"fmt"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/mohsenHa/messenger/param/messageparam"
 	"github.com/mohsenHa/messenger/pkg/errmsg"
@@ -24,7 +25,7 @@ func (v Validator) ValidateSendRequest(req messageparam.SendRequest) (map[string
 	); err != nil {
 		fieldErrors := make(map[string]string)
 
-		var errV = validation.Errors{}
+		errV := validation.Errors{}
 		ok := errors.As(err, &errV)
 		if ok {
 			for key, value := range errV {

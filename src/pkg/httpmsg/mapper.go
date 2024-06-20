@@ -2,11 +2,12 @@ package httpmsg
 
 import (
 	"errors"
+	"net/http"
+
 	"github.com/mohsenHa/messenger/logger"
 	"github.com/mohsenHa/messenger/logger/loggerentity"
 	"github.com/mohsenHa/messenger/pkg/errmsg"
 	"github.com/mohsenHa/messenger/pkg/richerror"
-	"net/http"
 )
 
 func Error(err error) (message string, code int) {

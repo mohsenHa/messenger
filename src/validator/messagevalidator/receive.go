@@ -2,6 +2,7 @@ package messagevalidator
 
 import (
 	"errors"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/mohsenHa/messenger/param/messageparam"
 	"github.com/mohsenHa/messenger/pkg/errmsg"

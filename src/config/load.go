@@ -1,17 +1,18 @@
 package config
 
 import (
+	"strings"
+
 	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/v2"
-	"strings"
 )
 
 func Load(configPath string) Config {
 	// Global koanf instance. Use "." as the key path delimiter. This can be "/" or any character.
-	var k = koanf.New(".")
+	k := koanf.New(".")
 
 	// Load default values using the confmap provider.
 	// We provide a flat map with the "." delimiter.

@@ -5,11 +5,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/websocket"
-	"github.com/mohsenHa/messenger/param/messageparam"
 	"log"
 	"sync"
 	"time"
+
+	"github.com/gorilla/websocket"
+	"github.com/mohsenHa/messenger/param/messageparam"
 )
 
 func Receive(wg *sync.WaitGroup, done <-chan bool, user User) {
@@ -103,5 +104,4 @@ func startListen(c *websocket.Conn, messageChannel chan<- messageparam.SendMessa
 		}
 		messageChannel <- m
 	}
-
 }

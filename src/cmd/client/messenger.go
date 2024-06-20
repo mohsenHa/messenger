@@ -3,8 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/mohsenHa/messenger/pkg/encryptdecrypt"
 	"os"
+
+	"github.com/mohsenHa/messenger/pkg/encryptdecrypt"
 )
 
 func Messenger(user User) {

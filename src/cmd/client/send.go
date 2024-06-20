@@ -5,10 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/mohsenHa/messenger/param/messageparam"
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/mohsenHa/messenger/param/messageparam"
 )
 
 type SendRequest struct {
@@ -59,5 +60,4 @@ func Send(req SendRequest) (messageparam.SendMessage, error) {
 	}
 
 	return response.SendMessage, nil
-
 }

@@ -1,11 +1,12 @@
 package rabbitmq
 
 import (
+	"sync"
+	"time"
+
 	"github.com/mohsenHa/messenger/logger"
 	"github.com/mohsenHa/messenger/logger/loggerentity"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"sync"
-	"time"
 )
 
 type OutputChannel struct {

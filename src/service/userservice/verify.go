@@ -2,6 +2,7 @@ package userservice
 
 import (
 	"fmt"
+
 	"github.com/mohsenHa/messenger/param/userparam"
 	"github.com/mohsenHa/messenger/pkg/encryptdecrypt"
 	"github.com/mohsenHa/messenger/pkg/errmsg"
