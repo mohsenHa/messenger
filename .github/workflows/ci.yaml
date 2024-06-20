@@ -8,7 +8,7 @@ on:
     branches: [main]
 
 jobs:
-  ci:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,9 +27,28 @@ jobs:
 
       - name: dockerDown
         run: sudo docker-compose -f ./serve/ci_cd/docker-compose.yml down
-
+  format:
+    needs:
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.22
       - name: Format
         run: make format
+  lint:
+    needs:
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.22
 
       - name: Lint
         run: make lint
@@ -37,7 +56,9 @@ jobs:
   cd:
     runs-on: ubuntu-latest
     needs:
-      - ci
+      - test
+      - format
+      - lint
     steps:
       - uses: actions/checkout@v4
       - name: Setup Go
