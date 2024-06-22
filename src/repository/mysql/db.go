@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	// use mysql driver
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql" // use mysql driver
 )
 
 type Config struct {

@@ -57,7 +57,7 @@ func Receive(wg *sync.WaitGroup, done <-chan bool, user User) {
 				case messageparam.SendMessageMessageType:
 					messageReceived(msg, user)
 				default:
-					fmt.Printf("Message recived with invalid type %v", msg)
+					fmt.Printf("Message received with invalid type %v", msg)
 				}
 			}
 		}

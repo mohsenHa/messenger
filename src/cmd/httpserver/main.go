@@ -10,13 +10,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/mohsenHa/messenger/repository/inmemory/inmemoryuser"
+
 	"github.com/mohsenHa/messenger/adapter/rabbitmq"
 	"github.com/mohsenHa/messenger/config"
 	"github.com/mohsenHa/messenger/delivery/httpserver"
 	"github.com/mohsenHa/messenger/logger"
-	"github.com/mohsenHa/messenger/repository/migrator/mysqlmigrator"
-	"github.com/mohsenHa/messenger/repository/mysql"
-	"github.com/mohsenHa/messenger/repository/mysql/mysqluser"
 	"github.com/mohsenHa/messenger/service/authservice"
 	"github.com/mohsenHa/messenger/service/keygenerator"
 	"github.com/mohsenHa/messenger/service/messageservice"
@@ -33,10 +32,6 @@ func main() {
 	fmt.Printf("cfg: %+v\n", cfg)
 
 	_ = logger.NewLogger(cfg.Logger)
-
-	mgr := mysqlmigrator.New(cfg.Mysql)
-	mgr.Down()
-	mgr.Up()
 
 	rSvcs, rVal := setupServices(cfg, wg, done)
 
@@ -99,8 +94,8 @@ func profiling(cfg config.Config, wg *sync.WaitGroup, done <-chan bool) {
 }
 
 func setupServices(cfg config.Config, wg *sync.WaitGroup, done chan bool) (requiredServices httpserver.RequiredServices, requiredValidators httpserver.RequiredValidators) {
-	mysqlRepo := mysql.New(cfg.Mysql)
-	userRepo := mysqluser.New(mysqlRepo)
+	userRepo := inmemoryuser.New()
+
 	keyGen := keygenerator.New(cfg.KeyGenerator)
 	authSvc := authservice.New(cfg.Auth)
 

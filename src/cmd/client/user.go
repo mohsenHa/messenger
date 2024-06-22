@@ -185,7 +185,7 @@ func (u *User) Check() (bool, error) {
 	timeout := 5
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(timeout))
 	defer cancel()
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, targetHost.path("user/info"), nil)
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, targetHost.path("user/info"), http.NoBody)
 	if err != nil {
 		return false, err
 	}
@@ -224,6 +224,7 @@ func (u *User) Login() error {
 	if err != nil {
 		return err
 	}
+	req.Header.Add("content-type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -281,6 +282,7 @@ func (u *User) verify(code string) error {
 	if err != nil {
 		return err
 	}
+	req.Header.Add("content-type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

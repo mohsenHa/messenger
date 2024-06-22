@@ -32,6 +32,8 @@ func Register(request RegisterRequest) (RegisterResponse, error) {
 	if err != nil {
 		return RegisterResponse{}, err
 	}
+	req.Header.Add("content-type", "application/json")
+
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return RegisterResponse{}, err

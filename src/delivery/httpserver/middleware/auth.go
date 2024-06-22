@@ -18,7 +18,7 @@ func Auth(service authservice.Service) echo.MiddlewareFunc {
 		SigningKey:    publicKey,
 		SigningMethod: service.GetSigningMethod().Name,
 		TokenLookup:   "header:Authorization:Bearer ,query:token",
-		ParseTokenFunc: func(c echo.Context, auth string) (interface{}, error) {
+		ParseTokenFunc: func(_ echo.Context, auth string) (interface{}, error) {
 			claims, err := service.ParseToken(auth)
 			if err != nil {
 				return nil, err

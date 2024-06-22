@@ -51,6 +51,7 @@ func (s Server) Serve() {
 
 	s.Router.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogURI:           true,
+		LogURIPath:       true,
 		LogStatus:        true,
 		LogHost:          true,
 		LogRemoteIP:      true,
@@ -61,7 +62,7 @@ func (s Server) Serve() {
 		LogLatency:       true,
 		LogError:         true,
 		LogProtocol:      true,
-		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+		LogValuesFunc: func(_ echo.Context, v middleware.RequestLoggerValues) error {
 			errMsg := ""
 			if v.Error != nil {
 				errMsg = v.Error.Error()
