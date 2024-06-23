@@ -70,6 +70,7 @@ func (d *DB) IsIDUnique(id string) (bool, error) {
 	cancel()
 	_, err := d.GetUserByID(ctx, id)
 	if err != nil {
+		//lint:ignore nilerr if error is not nil then user id is unique
 		return true, nil
 	}
 
