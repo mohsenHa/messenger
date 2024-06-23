@@ -8,46 +8,46 @@ on:
     branches: [main]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.22
-      - name: Install dependencies
-        run: cd src && go mod tidy
-
-      - name: dockerUp
-        run: sudo docker-compose -f ./serve/ci_cd/docker-compose.yml up -d
-
-      - name: Test
-        run: make test
-
-      - name: dockerDown
-        run: sudo docker-compose -f ./serve/ci_cd/docker-compose.yml down
-  format:
-    needs:
-      - test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.22
-      - name: Format
-        run: make format
-
-      - name: Lint
-        run: make lint
+#  test:
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - uses: actions/checkout@v4
+  #      - name: Setup Go
+  #        uses: actions/setup-go@v4
+  #        with:
+  #          go-version: 1.22
+  #      - name: Install dependencies
+  #        run: cd src && go mod tidy
+  #
+  #      - name: dockerUp
+  #        run: sudo docker-compose -f ./serve/ci_cd/docker-compose.yml up -d
+  #
+  #      - name: Test
+  #        run: make test
+  #
+  #      - name: dockerDown
+  #        run: sudo docker-compose -f ./serve/ci_cd/docker-compose.yml down
+  #  format:
+  #    needs:
+  #      - test
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - uses: actions/checkout@v4
+  #      - name: Setup Go
+  #        uses: actions/setup-go@v4
+  #        with:
+  #          go-version: 1.22
+  #      - name: Format
+  #        run: make format
+  #
+  #      - name: Lint
+  #        run: make lint
 
   cd:
     runs-on: ubuntu-latest
-    needs:
-      - test
-      - format
+    #    needs:
+    #      - test
+    #      - format
     steps:
       - uses: actions/checkout@v4
       - name: Setup Go

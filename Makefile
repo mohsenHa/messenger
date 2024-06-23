@@ -18,6 +18,10 @@ format:
 build:
 	cd $(ROOT)
 	echo "Building stage"
+	echo $(DOCKER_HUB_USERNAME)
+	echo $(IMAGE_NAME)
+	echo $(IMAGE_VERSION)
+	echo $(GITHUB_RUN_ID)
 	echo $(DOCKER_HUB_TOKEN) | docker login --username "$(DOCKER_HUB_USERNAME)" --password-stdin
 	docker build . -t $(IMAGE_NAME):$(IMAGE_VERSION)-$(GITHUB_RUN_ID)
 	docker push $(IMAGE_NAME):$(IMAGE_VERSION)-$(GITHUB_RUN_ID)
