@@ -56,7 +56,7 @@ jobs:
           go-version: 1.22
 
       - name: check-env
-        run: echo "${{secrets.IMAGE_VERSION}}"
+        run: echo "${{vars.IMAGE_VERSION}}"
 
       - name: build
         run: make build
