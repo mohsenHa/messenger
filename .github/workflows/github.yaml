@@ -77,6 +77,9 @@ jobs:
       - name: deploy
         run: make deploy
         env:
+          IMAGE_NAME: ${{vars.IMAGE_NAME}}
+          IMAGE_VERSION: ${{vars.IMAGE_VERSION}}
           LIARA_API_TOKEN: ${{secrets.LIARA_API_TOKEN}}
           APP_NAME: ${{vars.APP_NAME}}
           APP_PORT: ${{vars.APP_PORT}}
+          GITHUB_RUN_ID: ${{github.run.id}}
