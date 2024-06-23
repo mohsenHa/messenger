@@ -57,6 +57,12 @@ jobs:
 
       - name: build
         run: make build
+        env:
+          DOCKER_HUB_TOKEN: ${{secrets.DOCKER_HUB_TOKEN}}
+          DOCKER_HUB_USERNAME: ${{vars.DOCKER_HUB_USERNAME}}
+          IMAGE_NAME: ${{vars.IMAGE_NAME}}
+          IMAGE_VERSION: ${{vars.IMAGE_VERSION}}
+          GITHUB_RUN_ID: ${{github.run.id}}
 
       - name: deploy
         run: make deploy
