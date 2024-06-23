@@ -56,16 +56,16 @@ jobs:
           go-version: 1.22
 
       - name: check-env
-        run: echo ${{secrets.docker.hub.token}}
+        run: echo "$secrets.docker.hub.token"
       - name: check-env
-        run: echo ${{secrets.IMAGE_VERSION}}
+        run: echo "$secrets.IMAGE_VERSION"
 
       - name: build
         run: make build
         env:
-          DOCKER_HUB_TOKEN: ${{secrets.docker.hub.token}}
-          DOCKER_HUB_USERNAME: ${{vars.docker.hub.username}}
-          IMAGE_NAME: ${{vars.image.name}}
+          DOCKER_HUB_TOKEN: ${{secrets.DOCKER_HUB_TOKEN}}
+          DOCKER_HUB_USERNAME: ${{vars.DOCKER_HUB_USERNAME}}
+          IMAGE_NAME: ${{vars.IMAGE_NAME}}
           IMAGE_VERSION: ${{vars.IMAGE_VERSION}}
           GITHUB_RUN_ID: ${{github.run.id}}
 
