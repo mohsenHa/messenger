@@ -18,7 +18,10 @@ format:
 build:
 	cd $(ROOT)
 	echo "Building stage"
-	echo ${GOLANG_VERSION}
+	echo $(DOCKER_HUB_TOKEN) | docker login --username "$(DOCKER_HUB_USERNAME)" --password-stdin
+	docker build . -t $(IMAGE_NAME):$(IMAGE_VERSION)-$(GITHUB_RUN_ID)
+	docker push $(IMAGE_NAME):$(IMAGE_VERSION)-$(GITHUB_RUN_ID)
+	docker logout
 
 deploy:
 	cd $(ROOT)
