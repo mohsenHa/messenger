@@ -56,7 +56,16 @@ jobs:
           go-version: 1.22
 
       - name: check-env
-        run: echo "${{IMAGE_VERSION}}"
+        run: |
+          echo "$DOCKER_HUB_USERNAME"
+          echo "$IMAGE_NAME"
+          echo "$IMAGE_VERSION"
+          echo "$RUN_ID"
+        env:
+          DOCKER_HUB_USERNAME: ${{vars.DOCKER_HUB_USERNAME}}
+          IMAGE_NAME: ${{vars.IMAGE_NAME}}
+          IMAGE_VERSION: ${{vars.IMAGE_VERSION}}
+          RUN_ID: ${{github.run.id}}
 
       - name: build
         run: make build
