@@ -64,6 +64,14 @@ jobs:
           DOCKER_HUB_USERNAME: ${{vars.DOCKER_HUB_USERNAME}}
           IMAGE_NAME: ${{vars.IMAGE_NAME}}
           IMAGE_VERSION: ${{vars.IMAGE_VERSION}}
+          GO_VERSION: ${{vars.GO_VERSION}}
+          APPLICATION__ENABLE_PROFILING: ${{vars.APPLICATION__ENABLE_PROFILING}}
+          AUTH__SIGN_KEY: ${{secrets.AUTH__SIGN_KEY}}
+          RABBITMQ__USER: ${{secrets.RABBITMQ__USER}}
+          RABBITMQ_PASSWORD: ${{secrets.RABBITMQ_PASSWORD}}
+          RABBITMQ_HOST: ${{secrets.RABBITMQ_HOST}}
+          RABBITMQ_PORT: ${{secrets.RABBITMQ_PORT}}
+          RABBITMQ_VHOST: ${{secrets.RABBITMQ_VHOST}}
           GITHUB_RUN_ID: ${{github.run.id}}
 
       - name: deploy

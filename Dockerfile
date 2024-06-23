@@ -1,4 +1,13 @@
-FROM golang:1.22 as build
+ARG GO_VERSION=1.22
+ARG APPLICATION__ENABLE_PROFILING=false
+ARG AUTH__SIGN_KEY=jwt_secret
+ARG RABBITMQ__USER=guest
+ARG RABBITMQ_PASSWORD=guest
+ARG RABBITMQ_HOST=rabbitmq
+ARG RABBITMQ_PORT=5672
+ARG RABBITMQ_VHOST
+
+FROM golang:${GO_VERSION} as build
 #FROM busybox as build
 COPY ./src/ /home/app/src/
 # Set working directory
@@ -8,4 +17,11 @@ RUN go build  -o /home/app/build/app ./cmd/httpserver/
 FROM debian:stable-slim as run
 COPY --from=build /home/app/build/app /app
 COPY --from=build /home/app/src/config.yml /config.yml
+ENV APPLICATION__ENABLE_PROFILING=${APPLICATION__ENABLE_PROFILING}
+ENV AUTH__SIGN_KEY=${AUTH__SIGN_KEY}
+ENV RABBITMQ__USER=${RABBITMQ__USER}
+ENV RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+ENV RABBITMQ_HOST=${RABBITMQ_HOST}
+ENV RABBITMQ_PORT=${RABBITMQ_PORT}
+ENV RABBITMQ_VHOST=${RABBITMQ_VHOST}
 ENTRYPOINT ["/app"]
