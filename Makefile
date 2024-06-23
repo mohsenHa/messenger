@@ -16,8 +16,8 @@ format:
 	cd $(ROOT) && golangci-lint run --fix
 
 build:
-	cd $(ROOT)
 	echo "Building stage"
+	cd $(ROOT)
 	echo $(DOCKER_HUB_USERNAME)
 	echo $(IMAGE_NAME)
 	echo $(IMAGE_VERSION)
@@ -28,7 +28,8 @@ build:
 	docker logout
 
 deploy:
-	cd $(ROOT)
 	echo "Deploy stage"
-	echo ${GOLANG_VERSION}
+	npm install -g @liara/cli
+	liara login -i --email="$(LIARA_USERNAME)" --api-token="$(LIARA_API_TOKEN)"
+
 
