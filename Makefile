@@ -1,10 +1,4 @@
 ROOT=$(realpath $(dir $(lastword $(MAKEFILE_LIST))))/src
-DOCKER_HUB_TOKEN=${DOCKER_HUB_TOKEN}
-DOCKER_HUB_USERNAME=${DOCKER_HUB_USERNAME}
-IMAGE_NAME=${IMAGE_NAME}
-IMAGE_VERSION=${IMAGE_VERSION}
-GITHUB_RUN_ID=${GITHUB_RUN_ID}
-
 
 lint:
 	cd $(ROOT) && which golangci-lint || (go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.54.0)
