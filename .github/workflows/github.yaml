@@ -70,4 +70,5 @@ jobs:
         run: make deploy
         env:
           LIARA_API_TOKEN: ${{secrets.LIARA_API_TOKEN}}
-          LIARA_USERNAME: ${{secrets.LIARA_USERNAME}}
+          APP_NAME: ${{var.APP_NAME}}
+          APP_PORT: ${{var.APP_PORT}}

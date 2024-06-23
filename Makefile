@@ -30,6 +30,6 @@ build:
 deploy:
 	echo "Deploy stage"
 	npm install -g @liara/cli
-	liara login -i --email="$(LIARA_USERNAME)" --api-token="$(LIARA_API_TOKEN)"
+	liara deploy --image="$(IMAGE_NAME):$(IMAGE_VERSION)-$(GITHUB_RUN_ID)" --api-token="$(LIARA_API_TOKEN)" --app="$(APP_NAME)" --port="$(APP_PORT)" --no-app-logs
 
 
