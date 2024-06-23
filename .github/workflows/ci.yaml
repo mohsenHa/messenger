@@ -45,6 +45,7 @@ jobs:
 
   cd:
     runs-on: ubuntu-latest
+    environment: production
     #    needs:
     #      - test
     #      - format
