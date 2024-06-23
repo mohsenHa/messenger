@@ -2,11 +2,10 @@ package inmemoryuser
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/mohsenHa/messenger/entity"
 	"github.com/mohsenHa/messenger/pkg/errmsg"
 	"github.com/mohsenHa/messenger/pkg/richerror"
+	"time"
 )
 
 func (d *DB) Register(_ context.Context, u entity.User) (entity.User, error) {
@@ -31,15 +30,15 @@ func (d *DB) GetUserByID(_ context.Context, id string) (entity.User, error) {
 		WithMessage(errmsg.ErrorMsgNotFound).WithKind(richerror.KindNotFound)
 }
 
-func (d *DB) UpdateCode(_ context.Context, id, code string) error {
+func (d *DB) UpdateCode(ctx context.Context, id, code string) error {
 	const op = "mysql.Activate"
-	u, err := d.GetUserByID(context.Background(), id)
+	u, err := d.GetUserByID(ctx, id)
 	if err != nil {
 		return richerror.New(op).WithErr(err).
 			WithMessage(errmsg.ErrorMsgSomethingWentWrong).WithKind(richerror.KindUnexpected)
 	}
 	u.Code = code
-	_, err = d.Register(context.Background(), u)
+	_, err = d.Register(ctx, u)
 	if err != nil {
 		return richerror.New(op).WithErr(err).
 			WithMessage(errmsg.ErrorMsgSomethingWentWrong).WithKind(richerror.KindUnexpected)
@@ -48,16 +47,16 @@ func (d *DB) UpdateCode(_ context.Context, id, code string) error {
 	return nil
 }
 
-func (d *DB) Activate(_ context.Context, id string) error {
+func (d *DB) Activate(ctx context.Context, id string) error {
 	const op = "mysql.Activate"
 
-	u, err := d.GetUserByID(context.Background(), id)
+	u, err := d.GetUserByID(ctx, id)
 	if err != nil {
 		return richerror.New(op).WithErr(err).
 			WithMessage(errmsg.ErrorMsgSomethingWentWrong).WithKind(richerror.KindUnexpected)
 	}
 	u.Status = 1
-	_, err = d.Register(context.Background(), u)
+	_, err = d.Register(ctx, u)
 	if err != nil {
 		return richerror.New(op).WithErr(err).
 			WithMessage(errmsg.ErrorMsgSomethingWentWrong).WithKind(richerror.KindUnexpected)
@@ -67,8 +66,9 @@ func (d *DB) Activate(_ context.Context, id string) error {
 }
 
 func (d *DB) IsIDUnique(id string) (bool, error) {
-	_, err := d.GetUserByID(context.Background(), id)
-	fmt.Println(err)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	cancel()
+	_, err := d.GetUserByID(ctx, id)
 	if err != nil {
 		return true, nil
 	}
