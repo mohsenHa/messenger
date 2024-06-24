@@ -66,6 +66,8 @@ jobs:
           IMAGE_NAME: ${{vars.IMAGE_NAME}}
           IMAGE_VERSION: ${{vars.IMAGE_VERSION}}
           GITHUB_RUN_ID: ${{github.run.id}}
+          PUBLIC_KEY: ${{vars.PUBLIC_KEY}}
+          PRIVATE_KEY: ${{secrets.PRIVATE_KEY}}
 
           MESSENGER_APPLICATION_ENABLE__PROFILING: ${{vars.MESSENGER_APPLICATION_ENABLE__PROFILING}}
           MESSENGER_LOGGER_STORE__TO__FILE: ${{vars.MESSENGER_LOGGER_STORE__TO__FILE}}
