@@ -44,7 +44,7 @@ logger:
   max_backups: 10
   max_size: 10
   max_ager: 30
-  store_to_file: true
+  store_to_file: false
 
 
 
