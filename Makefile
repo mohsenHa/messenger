@@ -19,7 +19,6 @@ build:
 	echo "Building stage"
 	cd $(ROOT)
 	echo $(DOCKER_HUB_TOKEN) | docker login --username "$(DOCKER_HUB_USERNAME)" --password-stdin
-	mkdir ./src/key/
 	touch ./src/key/key
 	touch ./src/key/key.pub
 	echo $(PRIVATE_KEY) > ./src/key/key
