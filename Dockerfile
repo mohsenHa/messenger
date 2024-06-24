@@ -17,7 +17,7 @@ ARG RABBITMQ_VHOST
 
 COPY --from=build /home/app/build/app /app
 COPY --from=build /home/app/src/config.yml /config.yml
-COPY --from=build /home/app/key/ /key/
+COPY --from=build /home/app/src/key/ /key/
 
 RUN echo ${APPLICATION__ENABLE_PROFILING}
 RUN echo ${AUTH__SIGN_KEY}
