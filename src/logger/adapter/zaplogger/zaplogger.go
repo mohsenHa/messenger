@@ -80,6 +80,7 @@ func (zl *ZapLogger) Init() {
 			)
 			logger := zap.New(core, zap.AddStacktrace(zapcore.ErrorLevel))
 			zl.logger = logger
+
 			return
 		}
 
@@ -89,6 +90,7 @@ func (zl *ZapLogger) Init() {
 		)
 		logger := zap.New(core, zap.AddStacktrace(zapcore.ErrorLevel))
 		zl.logger = logger
+
 		return
 	})
 }
