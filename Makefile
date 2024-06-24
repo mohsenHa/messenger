@@ -19,7 +19,9 @@ build:
 	echo "Building stage"
 	cd $(ROOT)
 	echo $(DOCKER_HUB_TOKEN) | docker login --username "$(DOCKER_HUB_USERNAME)" --password-stdin
-	docker build . -t $(IMAGE_NAME):$(IMAGE_VERSION)-$(GITHUB_RUN_ID) --build-arg="GO_VERSION=$(GO_VERSION)" --build-arg="APPLICATION__ENABLE_PROFILING=$(APPLICATION__ENABLE_PROFILING)" --build-arg="AUTH__SIGN_KEY=$(AUTH__SIGN_KEY)" --build-arg="RABBITMQ__USER=$(RABBITMQ__USER)" --build-arg="RABBITMQ_PASSWORD=$(RABBITMQ_PASSWORD)" --build-arg="RABBITMQ_HOST=$(RABBITMQ_HOST)" --build-arg="RABBITMQ_PORT=$(RABBITMQ_PORT)" --build-arg="RABBITMQ_VHOST=$(RABBITMQ_VHOST)"
+	echo $(PRIVATE_KEY) > ./src/key/key
+	echo $(PUBLIC_KEY) > ./src/key/key.pub
+	docker build . -t $(IMAGE_NAME):$(IMAGE_VERSION)-$(GITHUB_RUN_ID) --build-arg GO_VERSION=$(GO_VERSION) --build-arg APPLICATION__ENABLE_PROFILING=$(APPLICATION__ENABLE_PROFILING) --build-arg AUTH__SIGN_KEY=$(AUTH__SIGN_KEY) --build-arg RABBITMQ__USER=$(RABBITMQ__USER) --build-arg RABBITMQ_PASSWORD=$(RABBITMQ_PASSWORD) --build-arg RABBITMQ_HOST=$(RABBITMQ_HOST) --build-arg RABBITMQ_PORT=$(RABBITMQ_PORT) --build-arg RABBITMQ_VHOST=$(RABBITMQ_VHOST)
 	docker push $(IMAGE_NAME):$(IMAGE_VERSION)-$(GITHUB_RUN_ID)
 	docker logout
 
