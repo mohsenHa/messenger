@@ -34,13 +34,14 @@ var (
 )
 
 type Config struct {
-	Level      string
-	Filename   string
-	Filepath   string
-	LocalTime  bool
-	MaxBackups int
-	MaxSize    int
-	MaxAge     int
+	Level       string
+	Filename    string
+	Filepath    string
+	LocalTime   bool
+	MaxBackups  int
+	MaxSize     int
+	MaxAge      int
+	StoreToFile bool
 }
 
 func NewZapLogger(cfg Config) *ZapLogger {
@@ -64,21 +65,31 @@ func (zl *ZapLogger) Init() {
 		config := zap.NewProductionEncoderConfig()
 		config.EncodeTime = zapcore.ISO8601TimeEncoder
 		defaultEncoder := zapcore.NewJSONEncoder(config)
-		writer := zapcore.AddSync(&lumberjack.Logger{
-			Filename:   zl.config.Filename,
-			LocalTime:  zl.config.LocalTime,
-			MaxSize:    zl.config.MaxSize,    // megabytes
-			MaxBackups: zl.config.MaxBackups, // megabytes
-			MaxAge:     zl.config.MaxAge,     // days
-		})
+		if zl.config.StoreToFile {
+			writer := zapcore.AddSync(&lumberjack.Logger{
+				Filename:   zl.config.Filename,
+				LocalTime:  zl.config.LocalTime,
+				MaxSize:    zl.config.MaxSize,    // megabytes
+				MaxBackups: zl.config.MaxBackups, // megabytes
+				MaxAge:     zl.config.MaxAge,     // days
+			})
+			stdOutWriter := zapcore.AddSync(os.Stdout)
+			core := zapcore.NewTee(
+				zapcore.NewCore(defaultEncoder, writer, zl.getLogLevel()),
+				zapcore.NewCore(defaultEncoder, stdOutWriter, zl.getLogLevel()),
+			)
+			logger := zap.New(core, zap.AddStacktrace(zapcore.ErrorLevel))
+			zl.logger = logger
+			return
+		}
 
 		stdOutWriter := zapcore.AddSync(os.Stdout)
 		core := zapcore.NewTee(
-			zapcore.NewCore(defaultEncoder, writer, zl.getLogLevel()),
 			zapcore.NewCore(defaultEncoder, stdOutWriter, zl.getLogLevel()),
 		)
 		logger := zap.New(core, zap.AddStacktrace(zapcore.ErrorLevel))
 		zl.logger = logger
+		return
 	})
 }
 

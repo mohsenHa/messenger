@@ -66,6 +66,7 @@ jobs:
           IMAGE_VERSION: ${{vars.IMAGE_VERSION}}
           GO_VERSION: ${{vars.GO_VERSION}}
           APPLICATION__ENABLE_PROFILING: ${{vars.APPLICATION__ENABLE_PROFILING}}
+          LOGGER__STORE_TO_FILE: ${{vars.LOGGER__STORE_TO_FILE}}
           AUTH__SIGN_KEY: ${{secrets.AUTH__SIGN_KEY}}
           RABBITMQ__USER: ${{secrets.RABBITMQ__USER}}
           RABBITMQ_PASSWORD: ${{secrets.RABBITMQ_PASSWORD}}

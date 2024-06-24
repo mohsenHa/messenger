@@ -8,13 +8,14 @@ import (
 )
 
 type Config struct {
-	Driver     string `koanf:"driver"`
-	Level      string `koanf:"level"`
-	Filepath   string `koanf:"filepath"`
-	LocalTime  bool   `koanf:"local_time"`
-	MaxBackups int    `koanf:"max_backups"`
-	MaxSize    int    `koanf:"max_size"`
-	MaxAge     int    `koanf:"max_ager"`
+	Driver      string `koanf:"driver"`
+	Level       string `koanf:"level"`
+	Filepath    string `koanf:"filepath"`
+	LocalTime   bool   `koanf:"local_time"`
+	MaxBackups  int    `koanf:"max_backups"`
+	MaxSize     int    `koanf:"max_size"`
+	MaxAge      int    `koanf:"max_ager"`
+	StoreToFile bool   `koanf:"store_to_file"`
 }
 
 type Logger interface {
@@ -45,13 +46,14 @@ func NewLogger(cfg Config) Logger {
 	once.Do(func() {
 		if cfg.Driver == zaplogger.DriverName {
 			logger = zaplogger.NewZapLogger(zaplogger.Config{
-				Level:      cfg.Level,
-				Filename:   cfg.Filepath,
-				Filepath:   cfg.Filepath,
-				LocalTime:  cfg.LocalTime,
-				MaxBackups: cfg.MaxBackups,
-				MaxSize:    cfg.MaxSize,
-				MaxAge:     cfg.MaxAge,
+				Level:       cfg.Level,
+				Filename:    cfg.Filepath,
+				Filepath:    cfg.Filepath,
+				LocalTime:   cfg.LocalTime,
+				MaxBackups:  cfg.MaxBackups,
+				MaxSize:     cfg.MaxSize,
+				MaxAge:      cfg.MaxAge,
+				StoreToFile: cfg.StoreToFile,
 			})
 
 			return
