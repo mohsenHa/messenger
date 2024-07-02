@@ -108,3 +108,13 @@ GO_IMAGE_VERSION=1.22
 - `COMPOSE_PROJECT_NAME`: Used for compose project name
 - `SERVE_APPLICATION`: Used for serve or not serve the application
 - `SERVE_WITH_AIR`: Used for serve with air for development. It is a live reload for golang.
+
+
+### Demo Server
+
+You can use the demo server with bellow command. Run it in two cmd and use different user file name (user1, user2).
+
+```shell
+cd src 
+go run ./cmd/client/ user1 ichat.liara.run
+```

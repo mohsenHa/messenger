@@ -15,6 +15,7 @@ import (
 
 func Receive(wg *sync.WaitGroup, done <-chan bool, user User) {
 	url := targetHost.ws("message/receive?token=" + user.Token)
+	fmt.Println(url)
 	c, resp, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		panic(err)

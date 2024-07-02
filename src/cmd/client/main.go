@@ -14,7 +14,7 @@ func (ht hostType) path(api string) string {
 }
 
 func (ht hostType) ws(api string) string {
-	return "ws://" + string(ht) + "/" + api
+	return "wss://" + string(ht) + "/" + api
 }
 
 var targetHost hostType = "127.0.0.1:8080"
